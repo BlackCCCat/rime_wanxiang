@@ -7,7 +7,7 @@ set_shuru_schema:
 ######################################################
 schema:
   schema_id: wanxiang_reverse
-  name: "万象：部件组字反查"
+  name: "万象：部件与笔画反查"
   version: "LTS"
   author: amzxyz
   description: |
