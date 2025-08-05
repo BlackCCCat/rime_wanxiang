@@ -81,6 +81,7 @@ local function init(env)
 
     env.single_symbol_pattern = "^" .. lead_char .. "([a-zA-Z0-9])$"
     env.double_symbol_pattern_text = "^" .. lead_char .. lead_char .. "$"
+    env.repeat_pattern = "^" .. lead_char .. "'" .. "$"  -- 用于上屏上次提交内容
 
     -- 初始化最后提交内容
     env.last_commit_text = "欢迎使用万象拼音！"
@@ -98,15 +99,19 @@ local function init(env)
     env.quick_symbol_text_update_notifier = env.engine.context.update_notifier:connect(
         function(context)
             local input = context.input
-            -- 检查用户是否输入双击符号 ;;（或其他配置的触发符号）
-            if string.match(input, env.double_symbol_pattern_text) then
-                -- 提交历史记录中的最新文本
-                env.engine:commit_text(env.last_commit_text) -- 从env获取最后提交内容
+            -- 1. 检查是否是重复上屏（比如 ;'）
+            if string.match(input, env.repeat_pattern) then
+                env.engine:commit_text(env.last_commit_text)
                 context:clear()
+            -- 2. 检查是否是双分号 (;;)，直接上屏分号
+            elseif string.match(input, env.double_symbol_pattern_text) then
+                env.engine:commit_text("；")
+                context:clear()
+            -- 3. 检查是否是单个符号键
             else
                 local match = string.match(input, env.single_symbol_pattern)
                 if match then
-                    local symbol = env.mapping[string.lower(match)] -- 增加大小写兼容
+                    local symbol = env.mapping[string.lower(match)] -- 大小写兼容
                     if symbol then
                         env.engine:commit_text(symbol)
                         context:clear()
