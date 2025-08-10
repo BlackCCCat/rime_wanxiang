@@ -83,7 +83,7 @@ jobs:
             exit 1
           fi
 
-      # 6. 将拆分后的 9 个词库文件夹一并打包，并先复制通用文件
+      # 6. 将拆分后的词库文件夹一并打包，并先复制通用文件
       - name: Pack splitted dicts
         if: env.SKIP != 'true'
         run: |
@@ -94,12 +94,11 @@ jobs:
             ["pro-moqi-fuzhu-dicts"]="1-pro-moqi-fuzhu-dicts.zip"
             ["pro-flypy-fuzhu-dicts"]="2-pro-flypy-fuzhu-dicts.zip"
             ["pro-zrm-fuzhu-dicts"]="3-pro-zrm-fuzhu-dicts.zip"
-            ["pro-jdh-fuzhu-dicts"]="4-pro-jdh-fuzhu-dicts.zip"
-            ["pro-tiger-fuzhu-dicts"]="5-pro-tiger-fuzhu-dicts.zip"
-            ["pro-wubi-fuzhu-dicts"]="6-pro-wubi-fuzhu-dicts.zip"
-            ["pro-hanxin-fuzhu-dicts"]="7-pro-hanxin-fuzhu-dicts.zip"
-            ["pro-all-dicts"]="8-pro-all-dicts.zip"
-            ["base-dicts"]="9-base-dicts.zip"
+            ["pro-tiger-fuzhu-dicts"]="4-pro-tiger-fuzhu-dicts.zip"
+            ["pro-wubi-fuzhu-dicts"]="5-pro-wubi-fuzhu-dicts.zip"
+            ["pro-hanxin-fuzhu-dicts"]="6-pro-hanxin-fuzhu-dicts.zip"
+            ["pro-all-dicts"]="7-pro-all-dicts.zip"
+            ["base-dicts"]="8-base-dicts.zip"
           )
 
           mkdir -p dist
@@ -179,7 +178,6 @@ jobs:
             - **pro-moqi-fuzhu-dicts.zip**：携带了墨奇辅助码的词库文件
             - **pro-flypy-fuzhu-dicts.zip**：携带了小鹤辅助码的词库文件
             - **pro-zrm-fuzhu-dicts.zip**：携带了自然码辅助码的词库文件
-            - **pro-jdh-fuzhu-dicts.zip**：携带了简单鹤辅助码的词库文件
             - **pro-tiger-fuzhu-dicts.zip**：携带了虎码辅助码的词库文件
             - **pro-wubi-fuzhu-dicts.zip**：携带了五笔辅助码的词库文件
             - **pro-hanxin-fuzhu-dicts.zip**：携带了汉心辅助码的词库文件
@@ -188,12 +186,11 @@ jobs:
             dist/1-pro-moqi-fuzhu-dicts.zip
             dist/2-pro-flypy-fuzhu-dicts.zip
             dist/3-pro-zrm-fuzhu-dicts.zip
-            dist/4-pro-jdh-fuzhu-dicts.zip
-            dist/5-pro-tiger-fuzhu-dicts.zip
-            dist/6-pro-wubi-fuzhu-dicts.zip
-            dist/7-pro-hanxin-fuzhu-dicts.zip
-            dist/8-pro-all-dicts.zip
-            dist/9-base-dicts.zip
+            dist/4-pro-tiger-fuzhu-dicts.zip
+            dist/5-pro-wubi-fuzhu-dicts.zip
+            dist/6-pro-hanxin-fuzhu-dicts.zip
+            dist/7-pro-all-dicts.zip
+            dist/8-base-dicts.zip
             wanxiang-lts-zh-hans.gram
           draft: false
           prerelease: false

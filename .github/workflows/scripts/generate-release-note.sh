@@ -6,7 +6,6 @@ declare -A display_names=(
   [zrm]="自然码"
   [moqi]="墨奇"
   [flypy]="小鹤"
-  [jdh]="简单鹤"
   [hanxin]="汉心"
   [wubi]="五笔前2"
   [tiger]="虎码首末"

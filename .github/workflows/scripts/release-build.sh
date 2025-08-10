@@ -155,7 +155,7 @@ package_schema() {
     echo
 }
 
-SCHEMA_LIST=("base" "flypy" "hanxin" "jdh" "moqi" "tiger" "wubi" "zrm")
+SCHEMA_LIST=("base" "flypy" "hanxin" "moqi" "tiger" "wubi" "zrm")
 
 # 如果没有传入参数，则循环 package 所有的
 if [[ -z "$SCHEMA_NAME" ]]; then

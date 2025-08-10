@@ -106,10 +106,9 @@ if __name__ == "__main__":
         (1, 2, "pro-moqi-fuzhu-dicts"),
         (2, 3, "pro-flypy-fuzhu-dicts"),
         (3, 4, "pro-zrm-fuzhu-dicts"),
-        (4, 5, "pro-jdh-fuzhu-dicts"),
-        (5, 6, "pro-tiger-fuzhu-dicts"),
-        (6, 7, "pro-wubi-fuzhu-dicts"),
-        (7, None, "pro-hanxin-fuzhu-dicts")  # 7 到末尾
+        (4, 5, "pro-tiger-fuzhu-dicts"),
+        (5, 6, "pro-wubi-fuzhu-dicts"),
+        (6, None, "pro-hanxin-fuzhu-dicts")  # 7 到末尾
     ]
 
     input_dir = 'dicts'  # 源目录，包含 .pro.dict.yaml 文件
