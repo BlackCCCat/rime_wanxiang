@@ -8,6 +8,7 @@ version: "LTS"
 sort: by_weight
 ...
 大黄	dài;ar;un;ad;md;dd;an huáng;cb;cb;ad,cb;nh;am;cb
+调调	tiáo;yk;yk;yv;sd;ym;yk tiáo;yk;yk;yv;sd;ym;yk	462
 明朝	míng;oo;oo;oo;ov;je;oo zhāo;uo;uo;ou,uo;nv;fj;uo	326
 忒过瘾	tēi;yx;yx;xy,yx;ph;an;xg guò;zc;zc;zc;ku;fp;zc yǐn;bx;bx;by;ah;ub;bx	81
 忒好吃	tēi;yx;yx;xy,yx;ph;an;xg hǎo;nz;nz;nz;bh;vb;nz chī;kv;kq;kq;da;kt;ky	136
@@ -4531,7 +4532,7 @@ sort: by_weight
 三个林	sān;ae;ae;aa;ts;dg;ae gè;rl;rl;ra,pa;jg;wh;ra lín;mm;mm;mm;ee;ss;ll	1
 三个龍	sān;ae;ae;aa;ts;dg;ae gè;rl;rl;ra,pa;jg;wh;ra lóng;lv;lv;dg,lg;tl;ue;	1
 三个鹿	sān;ae;ae;aa;ts;dg;ae gè;rl;rl;ra,pa;jg;wh;ra lù;gb;gb;gb,lb;xl;yn;gb	1
-三个圥	sān;ae;ae;aa;ts;dg;ae gè;rl;rl;ra,pa;jg;wh;ra lù;te;uw;te,uw;gp;fq;	1
+三个圥	sān;ae;ae;aa;ts;dg;ae gè;rl;rl;ra,pa;jg;wh;ra lù;te;uw,te;te,uw;gp;fq;	1
 三个马	sān;ae;ae;aa;ts;dg;ae gè;rl;rl;ra,pa;jg;wh;ra mǎ;va;va;aa,vh;nm;cn;va	1
 三个亇	sān;ae;ae;aa;ts;dg;ae gè;rl;rl;ra,pa;jg;wh;ra ma;dl;dl;da,ra;xg;qh;	1
 三个毛	sān;ae;ae;aa;ts;dg;ae gè;rl;rl;ra,pa;jg;wh;ra máo;pv;pv;pg;vm;tf;pv	1
