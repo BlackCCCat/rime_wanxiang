@@ -2,6 +2,7 @@
 patch:
   speller/algebra:
     __patch:
+      #- 模糊音                            # 这里启用后，本文件末尾可配置具体条目
       - wanxiang.schema:/自然码            # 可选输入方案名称：全拼, 自然码, 自然龙, 小鹤双拼, 搜狗双拼, 微软双拼, 智能ABC, 紫光双拼, 国标双拼
 ##########################以上格式受指令初始化控制，最好保持格式不变，如果发生变更请不要使用指令修改相关数据#####################################
   #custom_phrase/user_dict: custom_phrasexx    # 这里改成什么就需要手动创建同名的 custom_phrasexx.txt 文件在用户目录，这个文件主要用于置顶，编码为自定义编码的词汇
@@ -78,18 +79,39 @@ patch:
   #add_user_dict/enable_user_dict: true
 #按需造词全功能段落结束---------------------------------------------------------------
 
-#下面的数据有需要的可以patch引用
-#特殊优化：部分音节字极少，几乎不参与构词，则提升对应四码字的优先级，仅对小鹤双拼有效，其他双拼方案需作对应修改）
-小鹤双拼提权:
+
+模糊音: 
   __append:
-    - derive/^(.*?)(\d?);(bl|dx|df|eg|fn|kw|ny|tw|vw|yd|rx|fs|ix)$/$1$3/
-    - derive/^(.*?)(\d?);.*?,(bl|dx|df|eg|fn|kw|ny|tw|vw|yd|rx|fs|ix)$/$1$3/
-    - derive/^(.*?)(\d?);.*?,.*?,(bl|dx|df|eg|fn|kw|ny|tw|vw|yd|rx|fs|ix)$/$1$3/
-    - derive/^(.*?)(\d?);.*?,.*?,.*?,(bl|dx|df|eg|fn|kw|ny|tw|vw|yd|rx|fs|ix)$/$1$3/
-#特殊优化：部分音节字极少，几乎不参与构词，则提升对应四码字的优先级，仅对自然码有效，其他双拼方案需作对应修改）
-自然码提权:
-  __append:
-    - derive/^(.*?)(\d?);(bd|dw|df|dw|yl|rw|fs|iw)$/$1$3/
-    - derive/^(.*?)(\d?);.*?,(bd|dw|df|dw|yl|rw|fs|iw)$/$1$3/
-    - derive/^(.*?)(\d?);.*?,.*?,(bd|dw|df|dw|yl|rw|fs|iw)$/$1$3/
-    - derive/^(.*?)(\d?);.*?,.*?,.*?,(bd|dw|df|dw|yl|rw|fs|iw)$/$1$3/
+    # n - l
+    - derive/^l/n
+    - derive/^n/l
+    # r - y     开头
+    - derive/^y/r
+    - derive/^r/y
+    # h - f     开头
+    - derive/^h/f
+    - derive/^f/h
+    # r - l     开头
+    - derive/^r/l
+    - derive/^l/r
+    # k - g     开头
+    - derive/^k/g
+    - derive/^g/k
+    # an - ang
+    - derive/([ui]?)([āáǎàa])ng(.*)$/$1$2n$3
+    - derive/([ui]?)([āáǎàa])n(.*)$/$1$2ng$3
+    # en - eng
+    - derive/([ēéěèe])ng(.*)$/$1n$2
+    - derive/([ēéěèe])n(.*)$/$1ng$2
+    # in - ing
+    - derive/([īíǐìi])ng(.*)$/$1n$2
+    - derive/([īíǐìi])n(.*)$/$1ng$2
+    # c - ch
+    - derive/^c([^h]*)/ch$1
+    - derive/^ch/c
+    # z - zh
+    - derive/^z([^h]*)/zh$1
+    - derive/^zh/z
+    # s - sh
+    - derive/^s([^h]*)/sh$1
+    - derive/^sh/s

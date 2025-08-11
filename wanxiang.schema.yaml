@@ -1086,7 +1086,41 @@ speller:
     - xform/u$/Ⓓ/
     - xform/v$/Ⓧ/
     - xlit/ⓆⓌⒺⓇⓉⓎⓄⓅⒶⓈⒹⒻⒼⒽⒿⓀⓁⓏⓍⒸⓋⒷⓃⓂ/qwertyopasdfghjklzxcvbnm/
-
+模糊音: 
+  __append:
+    # n - l
+    - derive/^l/n
+    - derive/^n/l
+    # r - y     开头
+    - derive/^y/r
+    - derive/^r/y
+    # h - f     开头
+    - derive/^h/f
+    - derive/^f/h
+    # r - l     开头
+    - derive/^r/l
+    - derive/^l/r
+    # k - g     开头
+    - derive/^k/g
+    - derive/^g/k
+    # an - ang
+    - derive/([ui]?)([āáǎàa])ng(.*)$/$1$2n$3
+    - derive/([ui]?)([āáǎàa])n(.*)$/$1$2ng$3
+    # en - eng
+    - derive/([ēéěèe])ng(.*)$/$1n$2
+    - derive/([ēéěèe])n(.*)$/$1ng$2
+    # in - ing
+    - derive/([īíǐìi])ng(.*)$/$1n$2
+    - derive/([īíǐìi])n(.*)$/$1ng$2
+    # c - ch
+    - derive/^c([^h]*)/ch$1
+    - derive/^ch/c
+    # z - zh
+    - derive/^z([^h]*)/zh$1
+    - derive/^zh/z
+    # s - sh
+    - derive/^s([^h]*)/sh$1
+    - derive/^sh/s
 # 自定义词典 
 user_dict_set:
   dictionary: wanxiang

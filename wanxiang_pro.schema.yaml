@@ -1206,15 +1206,41 @@ fuzhu_hanxin:     ########################################位于词库第七个�
     - derive|^(.*?)(\d?);.*?,.*?,.*?,(\w)(\w).*$|$1$2/$3$4| # 双拼+直接声调+/间接2位辅助码的情况
     - xform/◯/;/  #对于微软双拼、搜狗双拼，前面将分号保护了起来，现在放出来让其发挥作用
     - erase/^(.+);(.+)$/    # 删除原始编码加速检索
-mohuyin:
+模糊音: 
   __append:
-    # 模糊音 可选择性开启
-    - derive/^z([a-z])/v$1/
-    - derive/^c([a-z])/i$1/
-    - derive/^s([a-z])/u$1/
-    - derive/^v([a-z])/z$1/
-    - derive/^i([a-z])/c$1/
-    - derive/^u([a-z])/s$1/
+    # n - l
+    - derive/^l/n
+    - derive/^n/l
+    # r - y     开头
+    - derive/^y/r
+    - derive/^r/y
+    # h - f     开头
+    - derive/^h/f
+    - derive/^f/h
+    # r - l     开头
+    - derive/^r/l
+    - derive/^l/r
+    # k - g     开头
+    - derive/^k/g
+    - derive/^g/k
+    # an - ang
+    - derive/([ui]?)([āáǎàa])ng(.*)$/$1$2n$3
+    - derive/([ui]?)([āáǎàa])n(.*)$/$1$2ng$3
+    # en - eng
+    - derive/([ēéěèe])ng(.*)$/$1n$2
+    - derive/([ēéěèe])n(.*)$/$1ng$2
+    # in - ing
+    - derive/([īíǐìi])ng(.*)$/$1n$2
+    - derive/([īíǐìi])n(.*)$/$1ng$2
+    # c - ch
+    - derive/^c([^h]*)/ch$1
+    - derive/^ch/c
+    # z - zh
+    - derive/^z([^h]*)/zh$1
+    - derive/^zh/z
+    # s - sh
+    - derive/^s([^h]*)/sh$1
+    - derive/^sh/s
 
 user_dict_set:
   dictionary: wanxiang_pro
