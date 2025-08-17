@@ -42,11 +42,14 @@ switches:
 #    reset: 2     #对于开关组从0开始数，第几个就reset几可设为默认
   - options: [ s2s, s2t, s2hk, s2tw ]   # 简繁转换开关组，可以在一个空选项和多个实际“- simplifier@s2hk”引入的项目之前切换，这是一个开关组，你可以将其中任意一个s2s等设置为toggle快捷键，多次按下将轮询
     states: [ 简体, 通繁, 港繁, 臺繁 ]
-  - name: tone_hint                    #开启后在候选的注释里面实时显示全拼声调，不开启则采用系统配置，影响的是comment_format，归属：super_comment.lua
+  - name: tone_hint                     #开启后在候选的注释里面实时显示全拼声调，不开启则采用系统配置，影响的是comment_format，归属：super_comment.lua
     states: [ 读音关, 读音开 ]
   - name: super_tips                    #开启后在输入编码后面的提示区显示实时的提示数据，受tips数据库影响，表情、翻译、车牌、符号等对应关系数据，并可实现句号上屏，不开启则默认，影响的是segment.prompt参数，归属：super_tips.lua
     states: [ 提示关, 提示开 ]
     reset: 1
+  - name: corrector                     #一个基于数据库策略的编码纠错工具,优势是跨词汇直接修正编码,与转写方式形成互补，归属：typo_corrector.lua
+    reset: 1
+    states: [ 纠错关, 纠错开 ]
   - name: search_single_char            #多体现在编码重合但候选有单字或者多字的情况辅码查词时是否单字优先，全拼常见，类似于特定编码情况下、反查状态下的调序能力。归属：search.lua
     states: [正常, 单字]
 
@@ -62,7 +65,7 @@ engine:
     - lua_processor@*super_sequence*P           #手动排序，高亮候选 ctrl+j左移动 ctrl+k 右移动 ctrl+l 移除位移  ctrl+p 置顶
     - lua_processor@*limit_repeated             #用于限制最大候选长度以及最大重复输入声母编码长度，避免性能异常
     - lua_processor@*backspace_limit            #防止连续 Backspace 在编码为空时删除已上屏内容
-    - lua_processor@*typo_correcter             #基于编码策略的按键纠错,可与转写法共用,能跨越单字编码到词组级别,补齐转写方式短板
+    - lua_processor@*typo_corrector             #基于编码策略的按键纠错,可与转写法共用,能跨越单字编码到词组级别,补齐转写方式短板
     - lua_processor@*userdb_sync_delete         #⚠️危险操作：通过输入 /del 触发,用于清理自定义同步目录下txt用户词典里被标记c<0的词条，操作步骤：必须先同步、再执行/del、再去部署刷新状态、再去同步回收词典，完成动作。
     - ascii_composer                            #处理英文模式及中英文切换
     - recognizer                                #与 matcher 搭配，处理符合特定规则的输入码，如网址、反查等 tags
@@ -334,6 +337,8 @@ key_binder:
     - { when: has_menu, accept: "Control+s", toggle: tone_display }
 #通过快捷键Control+t开启超级tips
     - { when: has_menu, accept: "Control+t", toggle: super_tips }
+#通过快捷键Control+q开启超级tips
+    - { when: has_menu, accept: "Control+q", toggle: corrector }
 # 使用 tab 在不同音节之间跳转
     - { when: has_menu, accept: "Tab", send: "Control+Right" }
     - { when: composing, accept: "Tab", send: "Control+Right" }
