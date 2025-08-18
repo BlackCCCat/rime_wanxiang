@@ -44,6 +44,8 @@
 -- ld3 = "已知两点P(x₁, y₁)和Q(x₂, y₂)，求点P绕点Q旋转角度a(角度制)后的P'坐标"
 -- log = "x作为底数的对数"
 -- mod = "求余函数"
+-- msq = "计算正数的算术平方根"
+-- nrt = "计算 x 开 N 次方"
 -- ocb = "前n个奇数的立方和"
 -- ofp = "前n个奇数的4次方之和"
 -- osq = "前n个奇数的平方和"
@@ -80,7 +82,7 @@
 -- sjxx = "已知三角形三个顶点坐标，求其“心”的坐标"
 -- sjx1 = "已知三角形的三边长a、b、c，求三角形面积"
 -- sjx2 = "已知三角形的三个顶点坐标(x₁,y₁)，(x₂,y₂)，(x₃,y₃)，求三角形面积"
--- sqrt = "计算x平方根或虚根"
+-- sqrt = "计算复数的平方根"
 -- tanh = "双曲正切"
 -- tcr1 = "已知两圆标准方程(x-x₁)²+(y-y₁)²=r₁²和(x-x₂)²+(y-y₂)²=r₂²，判断它们的位置关系"
 -- tcr2 = "已知两圆一般方程x²+y²+D₁x+E₁y+F₁=0和x²+y²+D₂x+E₂y+F₂=0，判断它们的位置关系"
@@ -93,7 +95,6 @@
 -- dyzx1 = "已知一点坐标(x₁,y₁)和直线方程Ax+By+C=0，求点到直线的距离及对称点坐标"
 -- dyzx2 = "已知一点P(x₁,y₁)和直线l:Ax+By+C=0，求直线l关于点P的对称直线l'的方程"
 -- ldexp = "返回 x*2^y"
--- nroot = "计算 x 开 N 次方"
 -- sjxy1 = "已知三角形三边长，求内切圆半径和外接圆半径"
 -- sjxy2 = "已知三角形三个顶点坐标，求内切圆半径和外接圆半径"
 -- yysc1 = "求解一元三次方程"
@@ -220,6 +221,20 @@ local function round(m, n)
     return floor(m * factor + 0.5) / factor
 end
 
+local function format_number_for_display(n)
+    if type(n) ~= "number" then
+        return tostring(n)
+    end
+    -- 检查是否为整数
+    if n == math.floor(n) then
+        return tostring(math.floor(n))
+    end
+    -- 四舍五入到12位小数
+    local rounded = round(n, 12)
+    -- 使用fs函数转换为字符串并去除尾随0
+    return fs(rounded)
+end
+
 -- 计算两个数的最大公因数（GCD）
 local function gcd(a, b)
     while b ~= 0 do
@@ -279,8 +294,8 @@ local function nth_root(x, n)
         return x ^ (1 / n)
     end
 end
-calc_methods["nroot"] = nth_root
-methods_desc["nroot"] = "计算 x 开 N 次方"
+calc_methods["nrt"] = nth_root
+methods_desc["nrt"] = "计算 x 开 N 次方"
 
 -- 正弦
 local function sin(x)
@@ -397,27 +412,51 @@ end
 calc_methods["exp"] = exp
 methods_desc["exp"] = "返回 e^x"
 
--- 如果x>=0，返回x的平方根; 如果x<0，则返回虚数根
-local function sqrt(x)
+-- 计算复数的平方根
+local function sqrt(a, b)
+    -- 检查参数正确性
+    if type(a) ~= "number" or type(b) ~= "number" then
+        return "参数必须是数字"
+    end
+    local t1 = (math.sqrt(a^2 + b^2)+a)/2
+    local t2 = (math.sqrt(a^2 + b^2)-a)/2
+    local x1,x2,y1,y2
+    x1 = fn(math.sqrt(t1))
+    x2 = fn(-math.sqrt(t1))
+    y1 = fn(math.sqrt(t2))
+    y2 = fn(-math.sqrt(t2))
+    if a == 0 and b == 0 then
+        return 0
+    elseif a ~= 0 and b == 0 then
+        if a > 0 then
+            return x1.." , "..x2
+        else
+            return y1.."i".." , "..y2.."i"
+        end
+    elseif b ~= 0 then
+        if b > 0 then
+            return x1.."+"..y1.."i".." , "..x2.."-"..-y2.."i"
+        else
+            return x1.."-"..-y2.."i".." , "..x2.."+"..y1.."i"
+        end
+    end
+end
+calc_methods["sqrt"] = sqrt
+methods_desc["sqrt"] = "计算复数的平方根"
+
+-- 计算正数的算术平方根
+local function msq(x)
     -- 检查参数正确性
     if type(x) ~= "number" then
         return "参数必须是数字"
     end
-    local s
-    if x < 0 and x ~= -1 then
-        s = fn(math.sqrt(-x))
-        return "±" .. s .. "i"
-    elseif x == -1 then
-        return "±i"
-    elseif x == 0 then
-        return 0
-    else
-        s = fn(math.sqrt(x))
-        return "±" .. s
+    if x < 0 then
+        return "参数必须是非负数"
     end
+    return fn(math.sqrt(x))
 end
-calc_methods["sqrt"] = sqrt
-methods_desc["sqrt"] = "计算x平方根或虚根"
+calc_methods["msq"] = msq
+methods_desc["msq"] = "计算正数的算术平方根"
 
 -- x为底的对数， log(10, 100) = log(100) / log(10) = 2
 local function log(x, y)
@@ -2421,7 +2460,7 @@ local function prime_factorization(n)
     -- 处理2的因子
     while n % 2 == 0 do
         factors[2] = (factors[2] or 0) + 1
-        n = math.floor(n / 2)
+        n = n // 2
     end
     -- 处理奇数因子
     local divisor = 3
@@ -2429,7 +2468,7 @@ local function prime_factorization(n)
     while divisor <= max_divisor and n > 1 do
         while n % divisor == 0 do
             factors[divisor] = (factors[divisor] or 0) + 1
-            n = math.floor(n / divisor)
+            n = n // divisor
             max_divisor = math.floor(math.sqrt(n))
         end
         divisor = divisor + 2
@@ -3115,8 +3154,16 @@ function T.func(input, seg, env)
         elseif loaded_func then
             local success, result = pcall(loaded_func)
             if success then
-                yield(Candidate(input, seg.start, seg._end, tostring(result), ""))
-                yield(Candidate(input, seg.start, seg._end, express .. "=" .. tostring(result), ""))
+                local display_value
+                if type(result) =="number" then
+                    display_value = format_number_for_display(result)
+                else
+                    display_value = tostring(result)
+                end
+                yield(Candidate(input, seg.start, seg._end, display_value, ""))
+                yield(Candidate(input, seg.start, seg._end, express .. "=" .. display_value, ""))
+                --yield(Candidate(input, seg.start, seg._end, tostring((result)), ""))
+                --yield(Candidate(input, seg.start, seg._end, express .. "=" .. tostring((result)), ""))
             else
                 -- 处理执行错误
                 yield(Candidate(input, seg.start, seg._end, express, "执行错误"))
