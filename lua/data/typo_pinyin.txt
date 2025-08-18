@@ -1283,6 +1283,8 @@ nuep	nuwp
 nuez	nuwz
 gengxin	genxin
 gengxin	gegxin
+ngduo	ngudo
+yinggai	yingai
 #eo修正为ei横向偏移
 bei	beo
 fei	feo

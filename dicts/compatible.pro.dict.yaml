@@ -7,6 +7,7 @@ name: compatible
 version: "LTS"
 sort: by_weight
 ...
+粘着	zhān;mv;mk;mv;pd;oh;mk zhe;yo;yo;yo;gq;ud;em	510
 当时	dàng;xe;xe;xx;yb;iv;ea shí;oc;oc;oc;ok;jf;oc
 当日	dàng;xe;xe;xx;yb;iv;ea rì;ka;ka;aa,or,ri;or;jj;wa
 当年	dàng;xe;xe;xx;yb;iv;ea nián;pf;pl;ra,pa;ev;rh;pa
@@ -320,7 +321,6 @@ sort: by_weight
 炸鱼	zhá;hv;hv;hv;cw;ot;hv yú;da;da;da;wv;qg;ea	544
 炸鱼	zhà;hv;hv;hv;cw;ot;hv yú;da;da;da;wv;qg;ea	28
 长的	zhǎng;pn;pn;pd;pc;ta;pn de;bu;bu;bu;ui;rq;bu	919
-长相	zhǎng;pn;pn;pd;pc;ta;pn xiàng;mo;mo;mo;eq;sh;lm	429
 长牙	zhǎng;pn;pn;pd;pc;ta;pn yá;gp,ac;ap;ap;ly;ah;ap	583
 长牙	cháng;pn;pn;pd;pc;ta;pn yá;gp,ac;ap;ap;ly;ah;ap	384
 长芽	cháng;pn;pn;pd;pc;ta;pn yá;cy;cy;cy;ll;aa;cy	365
