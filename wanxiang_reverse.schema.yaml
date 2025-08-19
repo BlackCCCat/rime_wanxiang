@@ -3,6 +3,7 @@
 ###############选择与之匹配的拼音方案#####################
 set_shuru_schema:
   __include: 全拼    #可选的选项有（全拼, 自然码, 小鹤双拼, 微软双拼, 搜狗双拼, 智能ABC, 紫光双拼, 拼音加加, 国标双拼）
+  __patch: hspzn      #笔画类型有hspzn和hupvd可选
 
 ######################################################
 schema:
@@ -41,13 +42,19 @@ translator:
   dictionary: wanxiang_reverse
   enable_user_dict: false
 
+hspzn:
+  __append:
+    - xlit/HSPZN/hspzn/
+hupvd:
+  __append:
+    - xlit/HSPZN/hupvd/
 全拼:
   - xform/'//
   - derive/^([nl])ue$/$1ve/
   - derive/'([nl])ue$/'$1ve/
   - derive/^([jqxy])u/$1v/
   - derive/'([jqxy])u/'$1v/
-  - xform/^.+$/\L$0/
+
 
 自然码:
   - derive/^([jqxy])u(?=^|$|')/$1v/
@@ -85,7 +92,6 @@ translator:
   - xform/([a-z>])ou(?=^|$|')/$1<b>/
   - xform/in(?=^|$|')/<n>/
   - xform/'|<|>//
-  - xform/^.+$/\L$0/
 
 小鹤双拼:
   - derive/^([jqxy])u(?=^|$|')/$1v/
@@ -123,7 +129,6 @@ translator:
   - xform/ui(?=^|$|')/<v>/
   - xform/in(?=^|$|')/<b>/
   - xform/'|<|>//
-  - xform/^.+$/\L$0/
 
 微软双拼:
   - derive/^([jqxy])u(?=^|$|')/$1v/
@@ -163,7 +168,7 @@ translator:
   - xform/in(?=^|$|')/<n>/
   - xform/ing(?=^|$|')/;/
   - xform/'|<|>//
-  - xform/^.+$/\L$0/
+
 搜狗双拼:
   - derive/^([jqxy])u(?=^|$|')/$1v/
   - derive/'([jqxy])u(?=^|$|')/'$1v/
@@ -201,7 +206,7 @@ translator:
   - xform/in(?=^|$|')/<n>/
   - xform/ing(?=^|$|')/;/
   - xform/'|<|>//
-  - xform/^.+$/\L$0/
+
 智能ABC:
   - xform/^zh/<a>/
   - xform/^ch/<e>/
@@ -233,7 +238,7 @@ translator:
   - xform/un(?=^|$|')/<n>/
   - xform/[uv]e(?=^|$|')|ui(?=^|$|')/<m>/
   - xform/'|<|>//
-  - xform/^.+$/\L$0/
+
 紫光双拼:
   - derive/^([jqxy])u(?=^|$|')/$1v/
   - derive/'([jqxy])u(?=^|$|')/'$1v/
@@ -267,7 +272,7 @@ translator:
   - xform/ao(?=^|$|')/<q>/
   - xform/an(?=^|$|')/<r>/
   - xform/'|<|>//
-  - xform/^.+$/\L$0/
+
 拼音加加:
   - derive/^([jqxy])u(?=^|$|')/$1v/
   - derive/'([jqxy])u(?=^|$|')/'$1v/
@@ -304,7 +309,7 @@ translator:
   - xform/([a-z>])ou(?=^|$|')/$1<p>/
   - xform/in(?=^|$|')/<l>/
   - xform/'|<|>//
-  - xform/^.+$/\L$0/
+
 国标双拼:
   - derive/^([aoe])([ioun])(?=^|$|')/$1$1$2/
   - derive/'([aoe])([ioun])(?=^|$|')/'$1$1$2/
@@ -339,4 +344,3 @@ translator:
   - xform/ui(?=^|$|')/<v>/
   - xform/in(?=^|$|')/<l>/
   - xform/'|<|>//
-  - xform/^.+$/\L$0/
