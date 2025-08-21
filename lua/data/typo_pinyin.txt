@@ -1126,10 +1126,8 @@ sheiy	shiey
 sheiz	shiez
 sheit	shiet
 shier	shiee
-shuang	suang
 #ch相关
 chuai	cuai
-chuang	cuang
 #zua可能存在zu ai,只对以下纠错
 zhuaj	zuaj
 zhuab	zuab
@@ -1153,7 +1151,6 @@ zhuax	zuax
 zhuay	zuay
 zhuaz	zuaz
 zhuaa	zuaa
-zhuang	zuang
 #[zsc]j+原音修正为[zsc]h
 zhe	zje
 zha	zja
