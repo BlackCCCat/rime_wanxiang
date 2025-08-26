@@ -442,6 +442,7 @@ speller:
     - xform/^n(\d)/en$1/
     - derive/([nl])ve(\d)/$1ue$2/                            #让üè兼容ue
     - derive/^([jqx])v(\d)$/$1u$2/
+    - derive/^([jqx])u(\d)$/$1v$2/
     - abbrev/^([zcs]h).+$/$1/                        #zh ch sh作为整体
     - abbrev/^([zcs]h).+(\d)$/$1$2/                  #zh ch sh作为整体
     - abbrev/^([qwrtypsdfghjklzxcbnm]).+$/$1/        #不携带元音的声母派生出首字母简码来
