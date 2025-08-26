@@ -100,7 +100,6 @@ engine:
     - table_translator@wanxiang_reverse    #挂接部件组字和笔画反查
     - script_translator@add_user_dict      #按需自造词
     - script_translator@user_dict_set      #使用自造词
-    - lua_translator@*force_gc             #暴力 GC 降低内存
   filters:
     - lua_filter@*super_sequence*F                  #手动排序，高亮候选 ctrl+j左移动 ctrl+k 右移动 ctrl+0 移除位移
     - lua_filter@*autocap_filter                    #英文自动大写，当输入一个大写那么候选首字母大写，当输入两个大写那么候选全为大写
