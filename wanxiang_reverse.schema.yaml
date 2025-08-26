@@ -54,8 +54,18 @@ hupvd:
   - derive/'([nl])ue$/'$1ve/
   - derive/^([jqxy])u/$1v/
   - derive/'([jqxy])u/'$1v/
-
-
+自然龙:
+  - xform/'//
+  - derive/^([nl])ue$/$1ve/
+  - derive/'([nl])ue$/'$1ve/
+  - derive/^([jqxy])u/$1v/
+  - derive/'([jqxy])u/'$1v/
+汉心龙:
+  - xform/'//
+  - derive/^([nl])ue$/$1ve/
+  - derive/'([nl])ue$/'$1ve/
+  - derive/^([jqxy])u/$1v/
+  - derive/'([jqxy])u/'$1v/
 自然码:
   - derive/^([jqxy])u(?=^|$|')/$1v/
   - derive/'([jqxy])u(?=^|$|')/'$1v/

@@ -115,6 +115,7 @@ translator:
     - derive/'([jqxy])u/'$1v/
     - derive/^.+$/\L$0/
     - erase/.*[^a-zA-Z].+$/
+
 自然码:
   __include: 通用派生规则
   __append:
