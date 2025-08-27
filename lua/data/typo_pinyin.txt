@@ -487,7 +487,6 @@ moun	mpun
 moup	mpup
 mouq	mpuq
 mour	mpur
-mous	mpus
 mout	mput
 mouw	mpuw
 moux	mpux

@@ -1205,6 +1205,14 @@ n次幂	N'cì'mì
 永硕E盘	yǒng'shuò'E'pán
 2B	2B
 2B铅笔	2B'qiān'bǐ
+报503	bào'503
+报404	bào'404
+报303	bào'303
+报500	bào'500
+会报503	huì'bào'503
+会报404	huì'bào'404
+会报303	huì'bào'303
+会报500	huì'bào'500
 HB	HB
 4B	4B
 2H	2H
@@ -1254,10 +1262,11 @@ L9 Max	L'jiǔ'Max
 L7 Ultra	L'qī'Ultra
 L8 Ultra	L'bā'Ultra
 L9 Ultra	L'jiǔ'Ultra
-i6	i'liù
-i7	i'qī
-i8	i'bā
-i9	i'jiǔ
+i3	I'sān
+i6	I'liù
+i7	I'qī
+i8	I'bā
+i9	I'jiǔ
 L系列	L'xì'liè
 问界M5	wèn'jiè'M'wǔ
 问界M7	wèn'jiè'M'qī
@@ -1281,19 +1290,19 @@ L系列	L'xì'liè
 小鹏G6	xiǎo'péng'G'liù
 小鹏G9	xiǎo'péng'G'jiǔ
 小鹏MONA M03	xǐao'péng'MONA'M'líng'sān
-奥迪A3	'ào'dí'A'sān
-奥迪A4	'ào'dí'A'sì
-奥迪A5	'ào'dí'A'wǔ
-奥迪A6	'ào'dí'A'liù
-奥迪A7	'ào'dí'A'qī
-奥迪A8	'ào'dí'A'bā
-奥迪Q2	'ào'dí'Q'èr
-奥迪Q3	'ào'dí'Q'sān
-奥迪Q5	'ào'dí'Q'wǔ
-奥迪Q7	'ào'dí'Q'qī
-奥迪Q8	'ào'dí'Q'bā
-奥迪e-tron	'ào'dí'e-tron
-奥迪e-tron GT	'ào'dí'e-tronGT
+奥迪A3	ào'dí'A'sān
+奥迪A4	ào'dí'A'sì
+奥迪A5	ào'dí'A'wǔ
+奥迪A6	ào'dí'A'liù
+奥迪A7	ào'dí'A'qī
+奥迪A8	ào'dí'A'bā
+奥迪Q2	ào'dí'Q'èr
+奥迪Q3	ào'dí'Q'sān
+奥迪Q5	ào'dí'Q'wǔ
+奥迪Q7	ào'dí'Q'qī
+奥迪Q8	ào'dí'Q'bā
+奥迪e-tron	ào'dí'e-tron
+奥迪e-tron GT	ào'dí'e-tronGT
 宝马1系	bǎo'mǎ'yī'xì
 宝马2系	bǎo'mǎ'èr'xì
 宝马3系	bǎo'mǎ'sān'xì
@@ -1401,3 +1410,11 @@ Model S	Model'S
 雷克萨斯LS	léi'kè'sà'sī'LS
 雷克萨斯LX	léi'kè'sà'sī'LX
 雷克萨斯LC	léi'kè'sà'sī'LC
+没人BB	méi'rén'BB
+没人BB了	méi'rén'BB'le
+真能BB	zhēn'néng'BB
+就知道BB	jiù'zhī'dào'BB
+再BB	zài'BB
+BB啥	BB'shá
+cnb	Cnb
+cnb.cool	Cnbcool
