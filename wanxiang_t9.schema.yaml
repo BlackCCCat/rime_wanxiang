@@ -11,7 +11,7 @@ super_comment:                  # 超级注释模块
 ########################以下是方案配置######################################################
 schema:
   schema_id: wanxiang_t9
-  name: 仓·九宫格
+  name: 万象・仓九
   version: "LTS"
   author:
     - amzxyz
@@ -298,7 +298,6 @@ speller:
 
 全拼:
   __append:
-    - xform/Ⅰ//  #用于Lua判断输入类型的标记
     - xlit/āáǎàōóǒòēéěèīíǐìūúǔùǖǘǚǜü/aaaaooooeeeeiiiiuuuuvvvvv/
     - abbrev/^([a-z]).+$/$1/
     - abbrev/^([zcs]h).+$/$1/

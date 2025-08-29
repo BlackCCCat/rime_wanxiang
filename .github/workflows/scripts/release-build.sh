@@ -122,6 +122,7 @@ package_schema_pro() {
         if [[ "$name" == "release-please-config.json" ]]; then continue; fi
         if [[ "$name" == "pro-"*-fuzhu-dicts ]]; then continue; fi
         if [[ "$name" == "chaifen" ]]; then continue; fi
+        if [[ "$name" == "wanxiang_t9.schema.yaml" ]]; then continue; fi
         if [[ "$name" == "wanxiang.dict.yaml" || "$name" == "wanxiang.schema.yaml" ]]; then continue; fi
         if [[ -e "$OUT_DIR/$name" ]]; then continue; fi
         if [[ "$name" == "custom" || "$name" == "dist" ]]; then continue; fi
