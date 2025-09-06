@@ -1246,7 +1246,7 @@ fuzhu_hanxin:    ########################################位于词库第六个�
 
 user_dict_set:
   dictionary: wanxiang_pro
-  initial_quality: 5
+  initial_quality: 0
   enable_completion: false
   enable_sentence: false
   core_word_length: 4          # >0 启用，按段学词 + 相邻段拼接
