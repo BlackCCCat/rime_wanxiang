@@ -226,7 +226,7 @@ wanxiang_mixedcode:
   db_class: stabledb
   enable_completion: true
   enable_sentence: false
-  initial_quality: 0.5
+  initial_quality: 2
   comment_format:
     - xform/^.+$//
 
@@ -1139,7 +1139,7 @@ speller:
 # 自定义词典 
 user_dict_set:
   dictionary: wanxiang
-  initial_quality: 2
+  initial_quality: 0
   enable_completion: false
   enable_sentence: false
   spelling_hints: 50
