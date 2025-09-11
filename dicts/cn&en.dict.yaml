@@ -4,7 +4,7 @@
 ---
 name: cn&en
 version: "LTS"
-sort: by_weight  #字典初始排序，可選original或by_weight
+sort: original  #字典初始排序，可選original或by_weight
 ...
 呣	M
 呒	M

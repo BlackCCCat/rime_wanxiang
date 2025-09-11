@@ -194,10 +194,10 @@ translator:
   always_show_comments: true   # Rime 默认在 preedit 等于 comment 时取消显示 comment，这里强制一直显示，供super_comment.lua做判断用。
   comment_format: {comment}    #将注释以词典字符串形式完全暴露，通过super_preedit.lua完全接管，灵活配置。
   preedit_format:              #影响到输入框的显示和“Shift+回车”上屏的字符，交给super_preedit处理
-    - xform/7/¹/
-    - xform/8/²/
-    - xform/9/³/
-    - xform/0/⁴/
+    - xform/:/¹/
+    - xform/"/²/
+    - xform/</³/
+    - xform/>/⁴/
   #disable_user_dict_for_patterns:  #如果你开启调频，需要一并考虑这个配置是否需要，基本的6码3字不调频，你可以自定义，目前的逻辑是依然记录用户词但满足规则的不输出不被使用
   #  - "^[a-z]{1,6}"
 
@@ -320,7 +320,24 @@ key_binder:
   select_first_character: "bracketleft"  # 左中括号 [
   select_last_character: "bracketright"  # 右中括号 ]
   search: "`"             # 反查引导符，要添加到 speller/alphabet
-  bindings:               # 也可以再增加方案专有的
+  bindings:
+    - { when: has_menu, accept: "1", send_sequence: '{space}' }
+    - { when: has_menu, accept: "2", send_sequence: '{Down}{space}' }
+    - { when: has_menu, accept: "3", send_sequence: '{Down}{Down}{space}' }
+    - { when: has_menu, accept: "4", send_sequence: '{Down}{Down}{Down}{space}' }
+    - { when: has_menu, accept: "5", send_sequence: '{Down}{Down}{Down}{Down}{space}' }
+    - { when: has_menu, accept: "6", send_sequence: '{Down}{Down}{Down}{Down}{Down}{space}' }
+#我知道很多人不想要声调，那么下面这四条你可以通过patch取代声调设定，并且还能通过shift继续使用声调
+    #- { when: has_menu, accept: "7", send_sequence: '{Down}{Down}{Down}{Down}{Down}{Down}{space}' }
+    #- { when: has_menu, accept: "8", send_sequence: '{Down}{Down}{Down}{Down}{Down}{Down}{Down}{space}' }
+    #- { when: has_menu, accept: "9", send_sequence: '{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{space}' }
+    #- { when: has_menu, accept: "0", send_sequence: '{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{space}' }
+#下面这四个用于主键盘7890代表声调1234,轻声归并到0，后面四个都是需要shift才能唤出的符号，完美解决了即使不用7890也能打声调，并且这样设计后完美配合副键盘不上屏的策略
+    - { when: has_menu, accept: "7", send: ':' }
+    - { when: has_menu, accept: "8", send: '"' }
+    - { when: has_menu, accept: "9", send: '<' }
+    - { when: has_menu, accept: "0", send: '>' }
+
 #- { when: composing, accept: Tab, send: '[' } ## 取消注释后：tab引导辅助码
     - { when: composing, accept: Control+w, send: Control+BackSpace }
 #分号用于次选，微软、搜狗双拼不可启用
@@ -384,8 +401,8 @@ speller:
 # table_translator翻译器，支持自动上屏。例如 “zmhu”可以自动上屏“怎么回事”
 #  auto_select: true
 #  auto_select_pattern: ^[a-z]+/|^[a-df-zA-DF-Z]\w{3}|^e\w{4}
-  # 如果不想让什么标点直接上屏，可以加在 alphabet，或者编辑标点符号为两个及以上的映射，alphabet就是将字符纳入输入编码的范畴
-  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA7890`;/
+  # 设定编码，写在这里就意味着打出这个字符就作为输入编码的序列了`反查用，;部份双拼用，/万象万能键到处用，:"<>分别用于输入1234声调
+  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA1234567890`;/:"<>
   # initials 定义仅作为始码的按键，排除 ` 让单个的 ` 可以直接上屏
   initials: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA/
   delimiter: " '"        # 系统配置，第一位<空格>是拼音之间的分隔符；第二位<'>表示可以手动输入单引号来分割拼音。
@@ -443,6 +460,7 @@ speller:
     - derive/(.+)(\d)/$1/
     - derive/(.+)ong$/$1on/   # lon → long
     - derive/([tl])eng$/$1en/ # ten → teng
+    - xlit/7890/:"<>/       # 将声调转换为符号编码
 自然码: 
   __append:
     - xform/Ⅱ//  #用于Lua判断输入类型的标记
@@ -510,6 +528,7 @@ speller:
     - xform/^(aj|ak|al|ob|ez|ef)(\d?)$//  # 释放非原本自然码规则
     - derive/^(..)(\d)$/$1/
     - derive/^(.).+(\d)$/$1$2/
+    - xlit/7890/:"<>/       # 将声调转换为符号编码
     #- abbrev/^([a-z]).+$/$1/   #简拼
 自然龙:      #原作者项目地址： https://github.com/rimeinn/rime-zrlong
   __append:
@@ -715,6 +734,7 @@ speller:
     - xform/^(aj|ac|ad|ew|ef|oz)(\d?)$//
     - derive/^(..)(\d)$/$1/
     - derive/^(.).+(\d)$/$1$2/
+    - xlit/7890/:"<>/       # 将声调转换为符号编码
     #- abbrev/^([a-z]).+$/$1/   #简拼
 搜狗双拼: 
   __append:
@@ -783,6 +803,7 @@ speller:
     - xlit/ⓆⓌⓇⓉⓎⓊⒾⓄⓅⓈⒹⒻⒼⒽⓂⒿⒸⓀⓁⓏⓍⓋⒷⓃ/qwrtyuiopsdfghmjcklzxvbn/
     - derive/^(..)(\d)$/$1/
     - derive/^(.).+(\d)$/$1$2/
+    - xlit/7890/:"<>/       # 将声调转换为符号编码
     #- abbrev/^([a-z]).+$/$1/   #简拼
 微软双拼: 
   __append:
@@ -852,6 +873,7 @@ speller:
     - xlit/ⓆⓌⓇⓉⓎⓊⒾⓄⓅⓈⒹⒻⒼⒽⓂⒿⒸⓀⓁⓏⓍⓋⒷⓃ/qwrtyuiopsdfghmjcklzxvbn/
     - derive/^(..)(\d)$/$1/
     - derive/^(.).+(\d)$/$1$2/
+    - xlit/7890/:"<>/       # 将声调转换为符号编码
     #- abbrev/^([a-z]).+$/$1/   #简拼
 智能ABC:
   __append:
@@ -916,6 +938,7 @@ speller:
     - xlit/ⓆⓌⒺⓇⓉⓎⓄⓅⒶⓈⒹⒻⒼⒽⒿⓀⓁⓏⓍⒸⓋⒷⓃⓂ/qwertyopasdfghjklzxcvbnm/
     - derive/^(..)(\d)$/$1/
     - derive/^(.).+(\d)$/$1$2/
+    - xlit/7890/:"<>/       # 将声调转换为符号编码
     #- abbrev/^([a-z]).+$/$1/   #简拼
 紫光双拼:
   __append:
@@ -981,6 +1004,7 @@ speller:
     - xlit/ⓌⓉⓎⓊⒾⓄⓅⒶⒼⓈⒹⒻⒽⒿⓀⓁⓏⓍⒷⓃⓂⓆⓇ/wtyuiopagsdfhjklzxbnmqr/
     - derive/^(..)(\d)$/$1/
     - derive/^(.).+(\d)$/$1$2/
+    - xlit/7890/:"<>/       # 将声调转换为符号编码
     #- abbrev/^([a-z]).+$/$1/   #简拼
 
 拼音加加:
@@ -1047,6 +1071,7 @@ speller:
     - xform/(.)ou$/$1Ⓟ/
     - xform/in$/Ⓛ/
     - xlit/ⓆⓌⓇⓉⓎⓊⒾⓄⓅⓈⒹⒻⒼⒽⓂⒿⒸⓀⓁⓏⓍⓋⒷⓃ/qwrtyuiopsdfghmjcklzxvbn/
+    - xlit/7890/:"<>/       # 将声调转换为符号编码
 乱序17:  
   __append:
     - xform/Ⅹ//  #用于Lua判断输入类型的标记
@@ -1145,10 +1170,10 @@ user_dict_set:
   spelling_hints: 50
   comment_format:
   preedit_format:     #影响到输入框的显示和“Shift+回车”上屏的字符，交给super_preedit_pro处理
-    - xform/7/¹/
-    - xform/8/²/
-    - xform/9/³/
-    - xform/0/⁴/
+    - xform/:/¹/
+    - xform/"/²/
+    - xform/</³/
+    - xform/>/⁴/
   enable_user_dict: false
   user_dict: zc
 # 自定义词典加词(``引导)
