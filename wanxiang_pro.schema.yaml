@@ -356,7 +356,7 @@ key_binder:
     #- { when: composing, accept: Tab, send: '[' } ## 取消注释后：tab引导辅助码
     - { when: composing, accept: Control+w, send: Control+BackSpace }
 #分号用于次选，微软、搜狗双拼不可启用
-    #- { when: has_menu, accept: semicolon, send: 2 }
+    #- { when: has_menu, accept: semicolon, send_sequence: '{Down}{space}' }
 #使用Control+e进入翻译模式
     - { when: has_menu, accept: "Control+e", toggle: chinese_english }
 #使用快捷键Control+c拆分显示
