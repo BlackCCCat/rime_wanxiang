@@ -201,10 +201,10 @@ translator:
   always_show_comments: true    # Rime 默认在 preedit 等于 comment 时取消显示 comment，这里强制一直显示，供super_comment.lua做判断用。
   comment_format: {comment}  #将注释以词典字符串形式完全暴露，通过super_comment.lua完全接管，灵活配置。
   preedit_format:               # preedit_format 影响到输入框的显示和“Shift+回车”上屏的字符
-    - xform/:/¹/
-    - xform/"/²/
-    - xform/</³/
-    - xform/>/⁴/
+    - xform/7/¹/
+    - xform/8/²/
+    - xform/9/³/
+    - xform/0/⁴/
 
 # 自定义短语
 custom_phrase:
@@ -323,48 +323,10 @@ key_binder:
   shijian_keys: ["/", "o"]
   # Lua 配置: 超级tips上屏按键
   tips_key: "period"   #修改时候去default找
-  search: "`"          # 反查引导符，要添加到 speller/alphabet
-  bindings:
-    - { when: has_menu, accept: "1", send_sequence: '{space}' }
-    - { when: has_menu, accept: "2", send_sequence: '{Down}{space}' }
-    - { when: has_menu, accept: "3", send_sequence: '{Down}{Down}{space}' }
-    - { when: has_menu, accept: "4", send_sequence: '{Down}{Down}{Down}{space}' }
-    - { when: has_menu, accept: "5", send_sequence: '{Down}{Down}{Down}{Down}{space}' }
-    - { when: has_menu, accept: "6", send_sequence: '{Down}{Down}{Down}{Down}{Down}{space}' }
-#我知道很多人不想要声调，那么下面这四条你可以通过patch取代声调设定，并且还能通过shift继续使用声调
-    #- { when: has_menu, accept: "7", send_sequence: '{Down}{Down}{Down}{Down}{Down}{Down}{space}' }
-    #- { when: has_menu, accept: "8", send_sequence: '{Down}{Down}{Down}{Down}{Down}{Down}{Down}{space}' }
-    #- { when: has_menu, accept: "9", send_sequence: '{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{space}' }
-    #- { when: has_menu, accept: "0", send_sequence: '{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{space}' }
-#下面这四个用于主键盘7890代表声调1234,轻声归并到0，后面四个都是需要shift才能唤出的符号，完美解决了即使不用7890也能打声调，并且这样设计后完美配合副键盘不上屏的策略
-    - { when: has_menu, accept: "7", send: ':' }
-    - { when: has_menu, accept: "8", send: '"' }
-    - { when: has_menu, accept: "9", send: '<' }
-    - { when: has_menu, accept: "0", send: '>' }
-
-#下面这十行是为了让主键盘在直接输入时保持上屏，副键盘保持不上屏状态
-    - { when: always, accept: "1", send_sequence: '{1}{space}' }
-    - { when: always, accept: "2", send_sequence: '{2}{space}' }
-    - { when: always, accept: "3", send_sequence: '{3}{space}' }
-    - { when: always, accept: "4", send_sequence: '{4}{space}' }
-    - { when: always, accept: "5", send_sequence: '{5}{space}' }
-    - { when: always, accept: "6", send_sequence: '{6}{space}' }
-    - { when: always, accept: "7", send_sequence: '{7}{space}' }
-    - { when: always, accept: "8", send_sequence: '{8}{space}' }
-    - { when: always, accept: "9", send_sequence: '{9}{space}' }
-    - { when: always, accept: "0", send_sequence: '{0}{space}' }
-
-#启用光标回退至特定音节后、补充辅助码的功能。补充完辅助码后，可以再按一次tab回到整句检查
-    - { when: composing, accept: Control+1, send_sequence: '{Home}{Shift+Right}' }
-    - { when: composing, accept: Control+2, send_sequence: '{Home}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+3, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+4, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+5, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+6, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+7, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
-#当输入编码后发现没有词，则通过双击``进入造词模式而且不需要删除编码，这个功能与``直接引导相呼应相配合
-    - { match: "^.*`$", accept: "`", send_sequence: '{BackSpace}{Home}{`}{`}{End}' }
-
+  search: "`"             # 反查引导符，要添加到 speller/alphabet
+  bindings:             # 也可以再增加方案专有的
+    #- { when: composing, accept: Tab, send: '[' } ## 取消注释后：tab引导辅助码
+    - { when: composing, accept: Control+w, send: Control+BackSpace }
 #分号用于次选，微软、搜狗双拼不可启用
     #- { when: has_menu, accept: semicolon, send: 2 }
 #使用Control+e进入翻译模式
@@ -384,7 +346,16 @@ key_binder:
     - { when: composing, accept: "Tab", send: "Control+Right" }
 #当tab第一个字补码正确后，可以使用Ctrl+tab进行上屏并依次补码
     - { when: composing, accept: "Control+Tab", send_sequence: '{Home}{Shift+Right}{1}{Shift+Right}' }
-
+#启用光标回退至特定音节后、补充辅助码的功能。补充完辅助码后，可以再按一次tab回到整句检查
+    - { when: composing, accept: Control+1, send_sequence: '{Home}{Shift+Right}' }
+    - { when: composing, accept: Control+2, send_sequence: '{Home}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+3, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+4, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+5, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+6, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+7, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+#当输入编码后发现没有词，则通过双击``进入造词模式而且不需要删除编码，这个功能与``直接引导相呼应相配合
+    - { match: "^.*`$", accept: "`", send_sequence: '{BackSpace}{Home}{`}{`}{End}' }
 
 #通过按下/发送/+1节约一个按键，不冲突的时候可以开启
     #- { match: "[a-z]{1,4}", accept: "/",  send_sequence: "/1" }
@@ -421,10 +392,10 @@ speller:
 # table_translator翻译器，支持自动上屏。例如 “zmhu”可以自动上屏“怎么回事”
 #  auto_select: true
 #  auto_select_pattern: ^[a-z]+/|^[a-df-zA-DF-Z]\w{3}|^e\w{4}
-  # 设定编码，写在这里就意味着打出这个字符就作为输入编码的序列了`反查用，;部份双拼用，/万象万能键到处用，:"<>分别用于输入1234声调
-  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA1234567890`;/:"<>
+  # 如果不想让什么标点直接上屏，可以加在 alphabet，或者编辑标点符号为两个及以上的映射
+  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA7890`;/
   # initials 定义仅作为始码的按键，排除 ` 让单个的 ` 可以直接上屏
-  initials: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA1234567890`/
+  initials: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA`/
   delimiter: " '"  # 第一位<空格>是拼音之间的分隔符；第二位<'>表示可以手动输入单引号来分割拼音。
   algebra:
     __patch:
@@ -1208,7 +1179,6 @@ fuzhu_hanxin:    ########################################位于词库第六个�
     - derive|^(.*?)(\d?);.*?,.*?,.*?,(\w)(\w).*$|$1$3$4o| # 双拼\+2位辅助码\+o，主要用来应对小企鹅这类输入法没法使用符号的场景，但同时有些辅助码会出现异常，如：ui uio>uiuio，手机小企鹅使用时开启
     - xform/◯/;/  #对于微软双拼、搜狗双拼，前面将分号保护了起来，现在放出来让其发挥作用
     - erase/^(.+);(.+)$/    # 删除原始编码加速检索
-    - xlit/7890/:"<>/       # 将声调转换为符号编码
 间接辅助:  ########################################位于词库第三个分号后
   __append:
 #以下是双拼运算
@@ -1237,7 +1207,6 @@ fuzhu_hanxin:    ########################################位于词库第六个�
     - derive|^(.*?)(\d?);.*?,.*?,.*?,(\w)(\w).*$|$1$2/$3$4| # 双拼+直接声调+/间接2位辅助码的情况
     - xform/◯/;/  #对于微软双拼、搜狗双拼，前面将分号保护了起来，现在放出来让其发挥作用
     - erase/^(.+);(.+)$/    # 删除原始编码加速检索
-    - xlit/7890/:"<>/       # 将声调转换为符号编码
 模糊音: 
   __append:
     # n - l
@@ -1284,10 +1253,10 @@ user_dict_set:
   spelling_hints: 50
   comment_format:
   preedit_format:               # preedit_format 影响到输入框的显示和“Shift+回车”上屏的字符
-    - xform/:/¹/
-    - xform/"/²/
-    - xform/</³/
-    - xform/>/⁴/
+    - xform/7/¹/
+    - xform/8/²/
+    - xform/9/³/
+    - xform/0/⁴/
   enable_user_dict: true
   user_dict: zc
 
