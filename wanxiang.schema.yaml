@@ -362,7 +362,7 @@ key_binder:
     - { match: "^.*`$", accept: "`", send_sequence: '{BackSpace}{Home}{`}{`}{End}' }
 
 #分号用于次选，微软、搜狗双拼不可启用
-    #- { when: has_menu, accept: semicolon, send_sequence: '{Down}{space}' }
+    #- { when: has_menu, accept: semicolon, send: 2 }
 #使用Control+e进入翻译模式
     - { when: has_menu, accept: "Control+e", toggle: chinese_english}
 #使用快捷键Control+a开启和关闭辅助码显示

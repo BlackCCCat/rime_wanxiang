@@ -362,7 +362,7 @@ key_binder:
 #当输入编码后发现没有词，则通过双击``进入造词模式而且不需要删除编码，这个功能与``直接引导相呼应相配合
     - { match: "^.*`$", accept: "`", send_sequence: '{BackSpace}{Home}{`}{`}{End}' }
 #分号用于次选，微软、搜狗双拼不可启用
-    #- { when: has_menu, accept: semicolon, send_sequence: '{Down}{space}' }
+    #- { when: has_menu, accept: semicolon, send: 2 }
 #使用Control+e进入翻译模式
     - { when: has_menu, accept: "Control+e", toggle: chinese_english }
 #使用快捷键Control+c拆分显示
