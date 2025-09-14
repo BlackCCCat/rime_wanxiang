@@ -121,8 +121,21 @@ end
 ------------------------------------------------------------
 local seq_db = userdb.LevelDb("lua/sequence")
 
-local seq_property = { ADJUST_KEY = "sequence_adjustment_code" }
-function seq_property.get(context) return context:get_property(seq_property.ADJUST_KEY) end
+local seq_property = {
+    ADJUST_KEY = "sequence_adjustment_code",
+}
+---@param context Context
+function seq_property.get(context)
+    return context:get_property(seq_property.ADJUST_KEY)
+end
+
+---@param context Context
+function seq_property.reset(context)
+    local code = seq_property.get(context)
+    if code ~= nil and code ~= "" then
+        context:set_property(seq_property.ADJUST_KEY, "")
+    end
+end
 
 local curr_state = {}
 curr_state.ADJUST_MODE = { None = -1, Reset = 0, Pin = 1, Adjust = 2 }
@@ -524,27 +537,42 @@ local function apply_prev_adjustment(cands, prev)
     end
 end
 
-local function apply_curr_adjustment(cands, curr_adj)
-    if not curr_adj then return end
-    local fromp = nil
-    for pos, cand in ipairs(cands) do
-        if cand.text == curr_state.selected_phrase then fromp = pos; break end
-    end
-    if not fromp then return end
+local function apply_curr_adjustment(candidates, curr_adjustment)
+    if curr_adjustment == nil then return end
 
-    local top = fromp
-    if curr_state.is_adjust_mode() then
-        top = fromp + curr_state.offset
-        curr_adj.offset = top - curr_adj.raw_position
-        curr_adj.fixed_position = top
-        if fromp ~= top then
-            if top < 1 then top = 1 elseif top > #cands then top = #cands end
-            local cand = table.remove(cands, fromp)
-            table.insert(cands, top, cand)
-            save_adjustment(curr_state.adjust_code, curr_state.adjust_key, curr_adj)
+    ---@type integer | nil
+    local from_position = nil
+    for position, cand in ipairs(candidates) do
+        if cand.text == curr_state.selected_phrase then
+            from_position = position
+            break
         end
     end
-    curr_state.highlight_index = top - 1
+
+    if from_position == nil then return end
+
+    local to_position = from_position
+    if curr_state.is_adjust_mode() then
+        to_position = from_position + curr_state.offset
+        curr_adjustment.offset = to_position - curr_adjustment.raw_position
+        curr_adjustment.fixed_position = to_position
+
+        local min_position, max_position = 1, #candidates
+        if from_position ~= to_position then
+            if to_position < min_position then
+                to_position = min_position
+            elseif to_position > max_position then
+                to_position = max_position
+            end
+
+            local candidate = table.remove(candidates, from_position)
+            table.insert(candidates, to_position, candidate)
+
+            save_adjustment(curr_state.adjust_code, curr_state.adjust_key, curr_adjustment)
+        end
+    end
+
+    curr_state.highlight_index = to_position - 1
 end
 
 local function extract_adjustment_code(context)
