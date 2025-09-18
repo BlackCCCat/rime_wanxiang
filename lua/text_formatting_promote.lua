@@ -296,17 +296,11 @@ function M.func(input, env)
 
         if last_seg and last_seg.start and last_seg._end then
         fully_consumed = (last_seg.start == confirmed) and (last_seg._end == #raw_code)
-        if fully_consumed then
-            -- 仅匹配最后分段文本（避免误吃其它分段）
-            last_text = raw_code:sub(last_seg.start + 1, last_seg._end)
-            -- 门禁：最后段不以 "/" 开头，且恰好 1 个 "/"
-            if last_text:sub(1,1) ~= "/" then
-            local _, slash_count = last_text:gsub("/", "")
-            if slash_count == 1 then
+            if fully_consumed then
+                -- 仅匹配最后分段文本（避免误吃其它分段）
+                last_text = raw_code:sub(last_seg.start + 1, last_seg._end)
                 wrap_letter = last_text:match(pat)
             end
-            end
-        end
         end
     end
 
