@@ -191,6 +191,17 @@ cg	Cg
 re	Re
 os	Os
 I'd	Id
+mAh	MAh
+PTT	PTT
+IEN	IEN
+FCC	FCC
+UHF	UHF
+VHF	VHF
+cbm	Cbm
+OEM	OEM
+ufw	Ufw
+IPA	IPA
+PLT	PLT
 aaa	Aaa
 aba	Aba
 abc	Abc
@@ -1436,6 +1447,15 @@ Sun.	Sun
 Thu.	Thu
 Tue.	Tue
 Wed.	Wed
+sshd	Sshd
+folo	Folo
+Ozon	Ozon
+GPSR	GPSR
+RFID	RFID
+kdbx	Kdbx
+Temu	Temu
+kagi	Kagi
+ICOM	ICOM
 a11y	A11y
 Aave	Aave
 Abba	Abba
@@ -4463,6 +4483,15 @@ Sunday	Sun
 Thurs.	Thu
 we'll	Well
 Wii U	WiiU
+DMARC	DMARC
+Cubox	Cubox
+BiLin	BiLin
+wolai	Wolai
+Rufus	Rufus
+Haiku	Haiku
+zgrep	Zgrep
+unban	Unban
+chmod	Chmod
 ngram	Ngram
 Aaron	Aaron
 abbey	Abbey
@@ -9323,6 +9352,22 @@ Thurs.	Thurs
 Thursday	Thu
 uTools	UTool
 Video CD	VCD
+haraka	Haraka
+Ghibli	Ghibli
+Hytera	Hytera
+Shopee	Shopee
+walkie	Walkie
+eSynic	ESynic
+Newegg	Newegg
+fiverr	Fiverr
+Lovart	Lovart
+PixPin	PixPin
+Rspamd	Rspamd
+ToMemo	ToMemo
+Rclone	Rclone
+DNSSEC	DNSSEC
+FlowUs	FlowUs
+Lexile	Lexile
 Abbott	Abbott
 ablate	Ablate
 aboard	Aboard
@@ -16268,6 +16313,18 @@ QR code	QRcode
 September	Sept
 Thursday	Thurs
 Weak AI	WeakAI
+dovecot	Dovecot
+callout	Callout
+Shopify	Shopify
+WebView	WebView
+Retevis	Retevis
+Maylawn	Maylawn
+rednote	Rednote
+sysstat	Sysstat
+Juchats	Juchats
+Listary	Listary
+APKpure	APKpure
+regedit	Regedit
 Aaliyah	Aaliyah
 abandon	Abandon
 abdomen	Abdomen
@@ -24255,6 +24312,19 @@ Touch ID	TouchID
 United States	Us
 Video CD	VideoCD
 Xbox One	XboxOne
+recidive	Recidive
+AdsPower	AdsPower
+MOTOTRBO	MOTOTRBO
+filetype	Filetype
+payoneer	Payoneer
+earpiece	Earpiece
+findtime	Findtime
+Seedream	Seedream
+LobeChat	LobeChat
+Poste.io	Poste.io
+QTTabBar	QTTabBar
+RackNerd	RackNerd
+iptables	Iptables
 Aberdeen	Aberdeen
 ablation	Ablation
 abnormal	Abnormal
@@ -32092,6 +32162,12 @@ Windows 95	Windows
 Windows 98	Windows
 Windows Me	Windows
 Windows XP	Windows
+Runestone	Runestone
+apkmirror	Apkmirror
+blocklist	Blocklist
+Duplicati	Duplicati
+Inoreader	Inoreader
+Nextcloud	Nextcloud
 abandoned	Abandoned
 abatement	Abatement
 abdominal	Abdominal
@@ -38814,6 +38890,10 @@ Windows NT	WindowsNT
 Windows RT	WindowsRT
 Windows XP	WindowsXP
 Zero Trust	ZeroTrust
+watchcount	Watchcount
+AutoHotkey	AutoHotkey
+FinalShell	FinalShell
+mailserver	Mailserver
 aboriginal	Aboriginal
 absolutely	Absolutely
 absorption	Absorption
@@ -43912,6 +43992,8 @@ Sumatra PDF	SumatraPDF
 Turbo Boost	TurboBoost
 Window Tidy	WindowTidy
 Xbox Series	XboxSeries
+backordered	Backordered
+Raindrop.io	Raindrop.io
 grandparent	Grandparent
 Ability Power Carry	APC
 abstraction	Abstraction
@@ -47306,6 +47388,9 @@ United States Dollar	USD
 Universal Serial Bus	USB
 WiFi Scanner	WiFiScanner
 Windows 2000	Windows2000
+aliworkbench	Aliworkbench
+FreeFileSync	FreeFileSync
+BaiduNetDisk	BaiduNetDisk
 abbreviation	Abbreviation
 acceleration	Acceleration
 accidentally	Accidentally
@@ -50559,6 +50644,8 @@ United Kingdom	UnitedKingdom
 Universal Plug and Play	UPnP
 Windows Mobile	WindowsMobile
 Windows Server	WindowsServer
+QuarkDownloads	QuarkDownloads
+Two-Way Radios	Two-Way Radios
 accommodations	Accommodations
 accomplishment	Accomplishment
 accountability	Accountability

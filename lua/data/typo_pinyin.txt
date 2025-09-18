@@ -862,7 +862,6 @@ roue	riue
 moua	miua
 foun	fiun
 soun	siun
-nouj	niuj
 poue	piue
 pouw	piuw
 touo	tiuo
