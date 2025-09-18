@@ -10,12 +10,12 @@
 --         - 其余按组输出：①不含字母 → ②其他
 --         - 仅 table 系列参与分组（table/user_table），非 table 归入"其他"
 -- 新增规则：
---         - 若"第二候选"为 user_table或者table，则不执行任何排序；按原顺序直接输出并返回
+--         - 若"第二候选"为 user_table 或 table，则不执行任何排序；按原顺序直接输出并返回
 -- 性能优化：
 --         - 单次遍历；中文/emoji 等（首字节>0x7F）且不含 '\' 的候选极早退
 --         - 正则改字节级判断；仅必要时 new Candidate
 --         - 支持排序窗口（env.settings.sort_window，默认 30；<=0 表示无限制）
--- 功能 D ：对第一候选进行成对符号包裹，例如：《三毛流浪记》
+-- 功能 D：对第一候选进行成对符号包裹（仅在“最后分段被完整消耗”且满足单斜杠触发时）
 local M = {}
 
 local byte, find, gsub, upper = string.byte, string.find, string.gsub, string.upper
@@ -37,7 +37,7 @@ local function has_ascii_alpha_fast(s)
     for i = 1, #s do
         local b = byte(s, i)
         if (b >= 65 and b <= 90) or (b >= 97 and b <= 122) then return true end
-        -- 以下字节符号被视作“ASCII痕迹”半角空格(32)、#(35)、·(183)、-(45)、@(64)
+        -- 以下字节符号被视作“ASCII痕迹”：空格(32)、#(35)、·(183)、-(45)、@(64)
         if b == 32 or b == 35 or b == 183 or b == 45 or b == 64 then return true end
     end
     return false
@@ -65,12 +65,12 @@ local function ascii_equal_ignore_case(a, b)
 end
 
 local escape_map = {
-    ["\\n"] = "\n",
-    ["\\t"] = "\t",
-    ["\\r"] = "\r",
-    ["\\\\"] = "\\",
-    ["\\s"] = " ",
-    ["\\d"] = "-",
+  ["\\n"] = "\n",
+  ["\\t"] = "\t",
+  ["\\r"] = "\r",
+  ["\\\\"] = "\\",
+  ["\\s"] = " ",
+  ["\\d"] = "-",
 }
 local esc_pattern = "\\[ntrsd\\\\]"
 
@@ -98,17 +98,17 @@ local function format_and_autocap(cand, code_ctx)
 
     if code_ctx.enable_cap then
         if b1 and b1 <= 127 and find(text, " ", 1, true) == nil and is_ascii_word_fast(text) then
-            if cand.type == "completion" or ascii_equal_ignore_case(text, code_ctx.pure_code) then
-                local new_text
-                if code_ctx.all_upper then
-                    new_text = upper(text)
-                else
-                    new_text = text:gsub("^%a", string.upper)
-                end
-                if new_text and new_text ~= text then
-                    text, changed = new_text, true
-                end
+        if cand.type == "completion" or ascii_equal_ignore_case(text, code_ctx.pure_code) then
+            local new_text
+            if code_ctx.all_upper then
+            new_text = upper(text)
+            else
+            new_text = text:gsub("^%a", string.upper)
             end
+            if new_text and new_text ~= text then
+            text, changed = new_text, true
+            end
+        end
         end
     end
 
@@ -122,84 +122,86 @@ local function belong_group1_no_alpha(cand)
     return is_table_type(cand) and (not has_ascii_alpha_fast(cand.text))
 end
 
--- 默认包装映射表（26字母专用）
+-- 默认包装映射表：单字母优先（全部为成对且常用），其余放双字母；无重复
 local default_wrap_map = {
-    a = "()",    -- 圆括号
-    b = "[]",    -- 方括号
-    c = "{}",    -- 花括号
-    d = "<>",    -- 尖括号
-    e = "\"\"",  -- 英文双引号
-    f = "''",    -- 英文单引号
-    g = "``",    -- 反引号
-    h = "「」",  -- 直角引号
-    i = "『』",  -- 双直角引号
-    j = "“”",    -- 中文弯双引号
-    k = "‘’",    -- 中文弯单引号
-    l = "《》",  -- 书名号（双）
-    m = "〈〉",  -- 书名号（单）
-    n = "（）",  -- 全角圆括号
-    o = "【】",  -- 黑方头括号
-    p = "〔〕",  -- 方头括号
-    q = "｛｝",  -- 全角花括号
-    r = "［］",  -- 全角方括号
-    s = "〈〉",   -- 数学尖括号
-    t = "⟨⟩",   -- 数学角括号
-    u = "⦅⦆",   -- 白圆括号
-    v = "⦇⦈",   -- 白方括号
-    w = "❰❱",   -- 装饰角括号
-    x = "⟪⟫",   -- 双角括号
-    y = "«»",    -- 法文双书名号
-    z = "‹›",    -- 法文单书名号
+  -- 单字母：常用成对括号/引号（每项恰好两个字符）
+  a = "()",    -- 圆括号
+  b = "[]",    -- 方括号
+  c = "{}",    -- 花括号
+  d = "<>",    -- 尖括号
+  e = "\"\"",  -- 英文双引号
+  f = "''",    -- 英文单引号
+  g = "``",    -- 反引号
+  h = "「」",  -- 直角引号
+  i = "『』",  -- 双直角引号
+  j = "“”",    -- 中文弯双引号
+  k = "‘’",    -- 中文弯单引号
+  l = "《》",  -- 书名号（双）
+  m = "〈〉",  -- 书名号（单）
+  n = "（）",  -- 全角圆括号
+  o = "【】",  -- 黑方头括号
+  p = "〔〕",  -- 方头括号
+  q = "｛｝",  -- 全角花括号
+  r = "［］",  -- 全角方括号
+  s = "〈〉",   -- 数学尖括号
+  t = "⟨⟩",   -- 数学角括号
+  u = "⦅⦆",   -- 白圆括号
+  v = "⦇⦈",   -- 白方括号
+  w = "❰❱",   -- 装饰角括号
+  x = "⟪⟫",   -- 双角括号
+  y = "«»",    -- 法文双书名号
+  z = "‹›",    -- 法文单书名号
 
-    -- 双字母：其余成对括号族
-    aa = "〖〗",
-    bb = "〘〙",
-    cc = "〚〛",
-    dd = "❨❩",
-    ee = "❪❫",
-    ff = "❬❭",
-    gg = "⦉⦊",
-    hh = "⦋⦌",
-    ii = "⦍⦎",
-    jj = "⦏⦐",
-    kk = "⦑⦒",
-    ll = "❮❯",
-    mm = "⌈⌉",
-    nn = "⌊⌋",
-    oo = "⟦⟧",
-    pp = "⟮⟯",
-    qq = "⟬⟭",
-    rr = "❲❳",
-    ss = "⌜⌝",
-    tt = "⌞⌟",
-    uu = "⸢⸣",
-    vv = "⸤⸥",
-    ww = "﹁﹂",
-    xx = "﹃﹄",
-    yy = "⌠⌡",
-    zz = "⟅⟆",
-    -- 双字母：重复/运算/标记类
-    md = "**",       -- Markdown 粗体
-    it = "__",       -- Markdown 斜体（下划线风格）
-    st = "~~",       -- 删除线
-    eq = "==",
-    pl = "++",
-    mi = "--",
-    sl = "//",
-    bs = "\\\\",     -- 反斜杠对（Lua 里需写成 "\\\\")
-    at = "@@",
-    dl = "$$",
-    pc = "%%",
-    an = "&&",
-    ["or"] = "||",
-    cr = "^^",
-    cl = "::",
-    sc = ";;",
-    ex = "!!",
-    qu = "??",
+  -- 双字母：其余成对括号族（不与上面重复）
+  aa = "〖〗",
+  bb = "〘〙",
+  cc = "〚〛",
+  dd = "❨❩",
+  ee = "❪❫",
+  ff = "❬❭",
+  gg = "⦉⦊",
+  hh = "⦋⦌",
+  ii = "⦍⦎",
+  jj = "⦏⦐",
+  kk = "⦑⦒",
+  ll = "❮❯",
+  mm = "⌈⌉",
+  nn = "⌊⌋",
+  oo = "⟦⟧",
+  pp = "⟮⟯",
+  qq = "⟬⟭",
+  rr = "❲❳",
+  ss = "⌜⌝",
+  tt = "⌞⌟",
+  uu = "⸢⸣",
+  vv = "⸤⸥",
+  ww = "﹁﹂",
+  xx = "﹃﹄",
+  yy = "⌠⌡",
+  zz = "⟅⟆",
+
+  -- 双字母：重复/运算/标记类（值均为两字符，便于切左右）
+  md = "**",       -- Markdown 粗体
+  it = "__",       -- Markdown 斜体（下划线风格）
+  st = "~~",       -- 删除线
+  eq = "==",
+  pl = "++",
+  mi = "--",
+  sl = "//",
+  bs = "\\\\",     -- 反斜杠对（Lua 里写成 "\\\\")
+  at = "@@",
+  dl = "$$",
+  pc = "%%",
+  an = "&&",
+  ["or"] = "||",
+  cr = "^^",
+  cl = "::",
+  sc = ";;",
+  ex = "!!",
+  qu = "??",
 }
 
--- 从配置加载 wrap 映射
+-- 从配置加载 wrap 映射（配置项优先）
 local function load_mapping_from_config(config)
     local symbol_map = {}
     for k, v in pairs(default_wrap_map) do
@@ -209,20 +211,20 @@ local function load_mapping_from_config(config)
     if ok_map and map then
         local ok_keys, keys = pcall(function() return map:keys() end)
         if ok_keys and keys then
-            for _, key in ipairs(keys) do
-                local ok_val, v = pcall(function() return config:get_string("paired_symbols/symkey/" .. key) end)
-                if ok_val and v and #v > 0 then
-                    symbol_map[string.lower(key)] = v
-                end
+        for _, key in ipairs(keys) do
+            local ok_val, v = pcall(function() return config:get_string("paired_symbols/symkey/" .. key) end)
+            if ok_val and v and #v > 0 then
+            symbol_map[string.lower(key)] = v
             end
+        end
         end
     end
     return symbol_map
 end
 
--- 加在匹配规则
+-- 加载触发模式（默认：单斜杠）
 local function load_wrap_pattern_from_config(config)
-    local default_pat = "[a-z]\\([a-z]+)$"
+    local default_pat = "[A-Za-z]/([A-Za-z]+)$"
     if not config then return default_pat end
     local ok, s = pcall(function() return config:get_string("paired_symbols/trigger") end)
     if ok and s and #s > 0 then
@@ -251,81 +253,68 @@ local function get_wrap_parts(wrap_str)
     end
 end
 
--- 安全注册 select_notifier
 function M.init(env)
-    env.wrap_map = {}
-    -- 加载映射
+    -- 映射与触发模式
     if env.engine and env.engine.schema and env.engine.schema.config then
         local cfg = env.engine.schema.config
         env.wrap_map = load_mapping_from_config(cfg)
-        -- ★ 加载触发模式串
         env.wrap_trigger_pattern = load_wrap_pattern_from_config(cfg)
+        if type(env.wrap_trigger_pattern) ~= "string" or env.wrap_trigger_pattern == "" then
+        env.wrap_trigger_pattern = "[A-Za-z]/([A-Za-z]+)$"
+        end
     else
         env.wrap_map = default_wrap_map
-        env.wrap_trigger_pattern = "[a-z]\\([a-z]+)$"
+        env.wrap_trigger_pattern = "[A-Za-z]/([A-Za-z]+)$"
     end
-
-    if not env or not env.engine or not env.engine.context then
-        return
-    end
-
-    local ctx_obj = env.engine.context
-    if not ctx_obj.select_notifier or type(ctx_obj.select_notifier.connect) ~= "function" then
-        return
-    end
-
-    env.__wanxiang_select_notifier = ctx_obj.select_notifier:connect(function(ctx)
-        if not ctx then return end
-        local input = ctx.input
-        if not input or #input == 0 then return end
-
-        local wrapped = _G.__wanxiang_wrap
-        if not wrapped or wrapped == "" then return end
-
-        if env and env.engine and type(env.engine.commit_text) == "function" then
-            env.engine:commit_text(wrapped)
-        end
-
-        if ctx.clear then ctx:clear() end
-        if env.engine.context.clear then env.engine.context:clear() end
-        if env.engine.context.reset then env.engine.context:reset() end
-
-        _G.__wanxiang_wrap = nil
-        env.have_select_commit = false
-        env.commit_code = nil
-    end)
 end
 
 function M.fini(env)
-    if env and env.__wanxiang_select_notifier and env.__wanxiang_select_notifier.disconnect then
-        env.__wanxiang_select_notifier:disconnect()
-        env.__wanxiang_select_notifier = nil
-    end
-    _G.__wanxiang_wrap = nil
+  -- 无额外资源
 end
 
 function M.func(input, env)
-    -- 清理残留包装
-    _G.__wanxiang_wrap = nil
-
     local raw_code = ""
     if env and env.engine and env.engine.context then
         raw_code = env.engine.context.input or ""
     end
 
+    -- 仅当“最后分段完整消耗”时，针对最后段文本匹配触发
     local wrap_letter = nil
-    local code = raw_code
+    local last_seg, last_text, fully_consumed = nil, nil, false
 
     if raw_code and #raw_code > 0 then
-        local pat = (env and env.wrap_trigger_pattern) or "[a-z]\\([a-z]+)$"
-        -- ★ 用配置化的 Lua 模式串提取分组
-        wrap_letter = raw_code:match(pat)
+        local pat = (env and env.wrap_trigger_pattern) or "[A-Za-z]/([A-Za-z]+)$"
+        local ctx = env.engine and env.engine.context
+        local comp = ctx and ctx.composition
+        last_seg = comp and comp:back()
+        local segm = comp and comp:toSegmentation()
+
+        local confirmed = 0
+        if segm and segm.get_confirmed_position then
+        confirmed = segm:get_confirmed_position() or 0
+        end
+
+        if last_seg and last_seg.start and last_seg._end then
+        fully_consumed = (last_seg.start == confirmed) and (last_seg._end == #raw_code)
+        if fully_consumed then
+            -- 仅匹配最后分段文本（避免误吃其它分段）
+            last_text = raw_code:sub(last_seg.start + 1, last_seg._end)
+            -- 门禁：最后段不以 "/" 开头，且恰好 1 个 "/"
+            if last_text:sub(1,1) ~= "/" then
+            local _, slash_count = last_text:gsub("/", "")
+            if slash_count == 1 then
+                wrap_letter = last_text:match(pat)
+            end
+            end
+        end
+        end
     end
 
+    local code = raw_code
     local code_len = #code
     local do_group = (code_len >= 2 and code_len <= 6)
 
-    local sort_window = 50
+    local sort_window = 30
     if env and env.settings and tonumber(env.settings.sort_window) then
         sort_window = tonumber(env.settings.sort_window)
     end
@@ -342,34 +331,50 @@ function M.func(input, env)
         enable_cap = enable_cap,
     }
 
+    -- 统一把候选的 end 覆盖到最后分段的 _end（在触发场景下），避免次选暴露尾巴
+    local function unify_tail_span(c)
+        if fully_consumed and wrap_letter and last_seg and c and c._end ~= last_seg._end then
+        local nc = Candidate(c.type, c.start, last_seg._end, c.text, c.comment)
+        nc.preedit = c.preedit
+        return nc
+        end
+        return c
+    end
+
+    -- 构造包裹后的首选（覆盖最后段，把触发尾巴一起吃掉）
+    local function build_wrapped_candidate(cand, wrapped)
+        local start_pos = (last_seg and last_seg.start) or cand.start
+        local end_pos   = (last_seg and last_seg._end)   or (start_pos + #raw_code)
+        local nc = Candidate(cand.type, start_pos, end_pos, wrapped, cand.comment)
+        nc.preedit = cand.preedit
+        return nc
+    end
+
     if not do_group then
         local idx = 0
         for cand in input:iter() do
-            idx = idx + 1
-            cand = format_and_autocap(cand, code_ctx)
+        idx = idx + 1
+        cand = format_and_autocap(cand, code_ctx)
 
-            if idx == 1 and wrap_letter then
-                local wrap = env.wrap_map[wrap_letter:lower()]
-                if wrap and cand and cand.text and cand.text ~= "" then
-                    local left, right = get_wrap_parts(wrap)
-                    local wrapped = left .. cand.text .. right
-
-                    _G.__wanxiang_wrap = wrapped
-                    local start_pos = cand.start
-                    local end_pos = start_pos + #raw_code
-
-                    local nc = Candidate(cand.type, start_pos, end_pos, wrapped, cand.comment)
-                    nc.preedit = cand.preedit
-                    yield(nc)
-                    goto continue_non_group
-                end
+        if idx == 1 and fully_consumed and wrap_letter then
+            local wrap = env.wrap_map[wrap_letter:lower()]
+            if wrap and cand and cand.text and cand.text ~= "" then
+            local left, right = get_wrap_parts(wrap)
+            local wrapped = left .. cand.text .. right
+            local nc = build_wrapped_candidate(cand, wrapped)
+            yield(nc)
+            goto continue_non_group
             end
-            yield(cand)
-            ::continue_non_group::
+        end
+
+        cand = unify_tail_span(cand)
+        yield(cand)
+        ::continue_non_group::
         end
         return
     end
 
+    -- 分组路径（2..6 码）
     local idx = 0
     local mode = "unknown"
     local grouped_cnt = 0
@@ -377,7 +382,10 @@ function M.func(input, env)
     local group2_others = {}
 
     local function flush_groups()
-        for _, c in ipairs(group2_others) do yield(c) end
+        for _, c in ipairs(group2_others) do
+        c = unify_tail_span(c)
+        yield(c)
+        end
         group2_others = {}
     end
 
@@ -386,64 +394,64 @@ function M.func(input, env)
         cand = format_and_autocap(cand, code_ctx)
 
         if idx == 1 then
-            if wrap_letter then
-                local wrap = env.wrap_map[wrap_letter:lower()]
-                if wrap and cand and cand.text and cand.text ~= "" then
-                    local left, right = get_wrap_parts(wrap)
-                    local wrapped = left .. cand.text .. right
-
-                    local start_pos = cand.start
-                    local end_pos = start_pos + #raw_code
-
-                    _G.__wanxiang_wrap = wrapped
-
-                    local nc = Candidate(cand.type, start_pos, end_pos, wrapped, cand.comment)
-                    nc.preedit = cand.preedit
-                    yield(nc)
-                else
-                    yield(cand)
-                end
+        if fully_consumed and wrap_letter then
+            local wrap = env.wrap_map[wrap_letter:lower()]
+            if wrap and cand and cand.text and cand.text ~= "" then
+            local left, right = get_wrap_parts(wrap)
+            local wrapped = left .. cand.text .. right
+            local nc = build_wrapped_candidate(cand, wrapped)
+            yield(nc)
             else
-                yield(cand)
+            cand = unify_tail_span(cand)
+            yield(cand)
             end
+        else
+            cand = unify_tail_span(cand)
+            yield(cand)
+        end
 
         elseif idx == 2 and mode == "unknown" then
-            if is_table_type(cand) then
-                mode = "passthrough"
-                yield(cand)
+        if is_table_type(cand) then
+            mode = "passthrough"
+            cand = unify_tail_span(cand)
+            yield(cand)
+        else
+            mode = "grouping"
+            grouped_cnt = 1
+            if belong_group1_no_alpha(cand) then
+            cand = unify_tail_span(cand)
+            yield(cand)
             else
-                mode = "grouping"
-                grouped_cnt = 1
-                if belong_group1_no_alpha(cand) then
-                    yield(cand)
-                else
-                    group2_others[#group2_others + 1] = cand
-                end
-                if sort_window > 0 and grouped_cnt >= sort_window then
-                    flush_groups()
-                    window_closed = true
-                end
+            group2_others[#group2_others + 1] = cand
             end
+            if sort_window > 0 and grouped_cnt >= sort_window then
+            flush_groups()
+            window_closed = true
+            end
+        end
 
         else
-            if mode == "passthrough" then
+        if mode == "passthrough" then
+            cand = unify_tail_span(cand)
+            yield(cand)
+        else
+            if (not window_closed) and ((sort_window <= 0) or (grouped_cnt < sort_window)) then
+            grouped_cnt = grouped_cnt + 1
+            if belong_group1_no_alpha(cand) then
+                cand = unify_tail_span(cand)
                 yield(cand)
             else
-                if (not window_closed) and ((sort_window <= 0) or (grouped_cnt < sort_window)) then
-                    grouped_cnt = grouped_cnt + 1
-                    if belong_group1_no_alpha(cand) then
-                        yield(cand)
-                    else
-                        group2_others[#group2_others + 1] = cand
-                    end
-                    if sort_window > 0 and grouped_cnt >= sort_window then
-                        flush_groups()
-                        window_closed = true
-                    end
-                else
-                    yield(cand)
-                end
+                group2_others[#group2_others + 1] = cand
             end
+            if sort_window > 0 and grouped_cnt >= sort_window then
+                flush_groups()
+                window_closed = true
+            end
+            else
+            cand = unify_tail_span(cand)
+            yield(cand)
+            end
+        end
         end
     end
 
@@ -451,4 +459,5 @@ function M.func(input, env)
         flush_groups()
     end
 end
+
 return M
