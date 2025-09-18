@@ -1,33 +1,40 @@
-
--- 欢迎使用万象拼音方案
+-- 欢迎使用万象拼音方案（quick_symbol_text）
 -- @amzxyz
 -- https://github.com/amzxyz/rime_wanxiang
--- a/、aa/ 触发预设编码自动上屏快符，支持将值设为"repeat" 以支持对应按键重复上屏功能，custom>schema>lua最终合并键值
--- 由于间接辅助使用的/作为第三字符引导，因此间接辅助模式下只能加载单字母快符表的扩展，其他情况则支持a/、aa/更多扩展
+-- 触发：由 schema.yaml -> quick_symbol_text/trigger 加载（默认 ^([a-z])/$ ）
+-- a/、b/ ... 单字母触发预设编码自动上屏；值可设为 "repeat" 实现重复上屏上一条提交内容
+-- custom>schema>lua 合并键值（仅合并单字母 a-z 键）
 
 local wanxiang = require("wanxiang")
 
--- 读取 RIME 配置文件中的符号映射表（值为 "" 表示禁用）
+-- 读取 symkey
 local function load_mapping_from_config(config)
     local symbol_map = {}
-    local ok_map, map = pcall(function() return config:get_map("quick_symbol_text") end)
-    if ok_map and map then
-        local ok_keys, keys = pcall(function() return map:keys() end)
-        if ok_keys and keys then
-            for _, key in ipairs(keys) do
-                local v = config:get_string("quick_symbol_text/" .. key)
-                if v ~= nil then
-                    symbol_map[string.lower(key)] = v
-                end
-            end
+    local ok_map, map = pcall(function() return config:get_map("quick_symbol_text/symkey") end)
+    if not ok_map or not map then return symbol_map end
+    local ok_keys, keys = pcall(function() return map:keys() end)
+    if not ok_keys or not keys then return symbol_map end
+    for _, key in ipairs(keys) do
+        local v = config:get_string("quick_symbol_text/symkey/" .. key)
+        if v ~= nil then
+        symbol_map[string.lower(tostring(key))] = v
         end
     end
     return symbol_map
 end
 
--- 默认符号映射表
+-- 读取 trigger
+local function load_trigger_from_config(config)
+    local default_pat = "^([a-z])/$"
+    if not config then return default_pat end
+    local ok, s = pcall(function() return config:get_string("quick_symbol_text/trigger") end)
+    if ok and type(s) == "string" and #s > 0 then return s end
+    return default_pat
+end
+
+-- 默认单字母映射
 local default_mapping = {
-    q = "“",
+    q = "：",
     w = "？",
     e = "（",
     r = "）",
@@ -52,65 +59,49 @@ local default_mapping = {
     v = "——",
     b = "%",
     n = "《",
-    m = "》"
+    m = "》",
 }
--- 初始化符号输入的状态
+
 local function init(env)
     local config = env.engine.schema.config
-    -- 由 wanxiang 判断是否处于“间接辅助模式”（md 非 unknown）
-    local _, md = wanxiang.get_input_method_type(env, true)
-    env.indirect_aux_mode = (md ~= nil and md ~= "unknown")
+    env.single_symbol_pattern = load_trigger_from_config(config)
 
-    -- 正则保持通用：任意字母串 + '/'
-    env.single_symbol_pattern = "^(%a+)/$"
-
-    -- 构造生效映射：间接辅助模式下只让单字母键进入表；否则表里有啥就生效啥
+    -- 默认表
     env.mapping = {}
-
-    -- 默认表（都是单字母）直接并入
     for k, v in pairs(default_mapping) do
-        env.mapping[k] = v
+        if #k == 1 and k:match("^[a-z]$") then env.mapping[k] = v end
     end
-
-    -- custom 并入（根据模式过滤）
-    local custom_mapping = load_mapping_from_config(config)
-    for k, v in pairs(custom_mapping) do
+    -- 覆盖（仅单字母）
+    local custom = load_mapping_from_config(config)
+    for k, v in pairs(custom) do
         local key = tostring(k):lower()
-        if env.indirect_aux_mode then
-            -- 仅保留 a-z 的单字母键
-            if #key == 1 and key:match("^[a-z]$") then
-                env.mapping[key] = v
-            end
-        else
-            -- 非间接模式：不做长度限制；表里有啥就生效啥
-            env.mapping[key] = v
+        if #key == 1 and key:match("^[a-z]$") then
+        env.mapping[key] = v  -- ""=禁用；"repeat"=特殊语义
         end
     end
 
     env.last_commit_text = "欢迎使用万象拼音！"
 
-    -- 提交通知器：更新 last_commit_text
-    env.quick_symbol_text_commit_notifier = env.engine.context.commit_notifier:connect(function(ctx)
-        local commit_text = ctx:get_commit_text()
-        if commit_text ~= "" then
-            env.last_commit_text = commit_text
-        end
-    end)
+    -- 记录上屏文本（供 repeat）
+    env.quick_symbol_text_commit_notifier =
+        env.engine.context.commit_notifier:connect(function(ctx)
+        local t = ctx:get_commit_text()
+        if t ~= "" then env.last_commit_text = t end
+        end)
 
-    -- 更新通知器：匹配并上屏（不再做长度判断，只看映射表是否有该键）
-    env.quick_symbol_text_update_notifier = env.engine.context.update_notifier:connect(function(context)
+    -- 命中触发则上屏并清空
+    env.quick_symbol_text_update_notifier =
+        env.engine.context.update_notifier:connect(function(context)
         local input = context.input or ""
         local key = string.match(input, env.single_symbol_pattern)
         if not key then return end
-
         key = string.lower(key)
         local symbol = env.mapping[key]
-        if symbol == nil or symbol == "" then
-            return  -- 未配置或显式禁用：放行
-        elseif symbol == "repeat" then
+        if symbol == nil or symbol == "" then return end           -- 未配置/禁用
+        if type(symbol) == "string" and symbol:lower() == "repeat" then
             if env.last_commit_text ~= "" then
-                env.engine:commit_text(env.last_commit_text)
-                context:clear()
+            env.engine:commit_text(env.last_commit_text)
+            context:clear()
             end
         else
             env.engine:commit_text(symbol)
@@ -122,20 +113,23 @@ end
 local function fini(env)
     if env.quick_symbol_text_commit_notifier then
         env.quick_symbol_text_commit_notifier:disconnect()
+        env.quick_symbol_text_commit_notifier = nil
     end
     if env.quick_symbol_text_update_notifier then
         env.quick_symbol_text_update_notifier:disconnect()
+        env.quick_symbol_text_update_notifier = nil
     end
 end
 
+-- 命中时吃键，避免后续流程处理
 local function processor(key_event, env)
-    local input = env.engine.context.input
+    local input = env.engine.context.input or ""
     local key = string.match(input, env.single_symbol_pattern)
     if key then
         key = string.lower(key)
         local symbol = env.mapping[key]
         if symbol ~= nil and symbol ~= "" then
-            return wanxiang.RIME_PROCESS_RESULTS.kAccepted
+        return wanxiang.RIME_PROCESS_RESULTS.kAccepted
         end
     end
     return wanxiang.RIME_PROCESS_RESULTS.kNoop
