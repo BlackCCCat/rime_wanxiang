@@ -20,7 +20,7 @@
 
 local M = {}
 
-local byte, find, gsub, upper = string.byte, string.find, string.gsub, string.upper
+local byte, find, gsub, upper, sub = string.byte, string.find, string.gsub, string.upper, string.sub
 
 -- ========= 工具 =========
 local function fast_type(c)
@@ -35,11 +35,11 @@ local function is_table_type(c)
     return t == "table" or t == "user_table"
 end
 
-local function has_ascii_alpha_fast(s)
+local function has_english_token_fast(s)
     for i = 1, #s do
         local b = byte(s, i)
         if (b >= 65 and b <= 90) or (b >= 97 and b <= 122) then return true end
-        if b == 32 or b == 35 or b == 183 or b == 45 or b == 64 then return true end
+        if b == 32 or b == 35 or b == 183 or b == 45 or b == 64 then return true end -- space/#/·/-/@
     end
     return false
 end
@@ -53,14 +53,12 @@ local function is_ascii_word_fast(s)
     return true
 end
 
-local function ascii_equal_ignore_case(a, b)
-    local la = #a
-    if la ~= #b then return false end
-    for i = 1, la do
-        local ba, bb = byte(a, i), byte(b, i)
-        if ba >= 65 and ba <= 90 then ba = ba + 32 end
-        if bb >= 65 and bb <= 90 then bb = bb + 32 end
-        if ba ~= bb then return false end
+local function ascii_equal_ignore_case_to_pure(text, pure_code_lc)
+    if #text ~= #pure_code_lc then return false end
+    for i = 1, #text do
+        local b = byte(text, i)
+        if b >= 65 and b <= 90 then b = b + 32 end -- A..Z -> a..z
+        if b ~= byte(pure_code_lc, i) then return false end
     end
     return true
 end
@@ -99,8 +97,8 @@ local function format_and_autocap(cand, code_ctx)
     end
 
     if code_ctx.enable_cap then
-        if b1 and b1 <= 127 and find(text, " ", 1, true) == nil and is_ascii_word_fast(text) then
-            if cand.type == "completion" or ascii_equal_ignore_case(text, code_ctx.pure_code) then
+        if b1 and b1 <= 127 and is_ascii_word_fast(text) then
+            if cand.type == "completion" or ascii_equal_ignore_case_to_pure(text, code_ctx.pure_code_lc) then
                 local new_text
                 if code_ctx.all_upper then
                     new_text = upper(text)
@@ -121,7 +119,7 @@ local function format_and_autocap(cand, code_ctx)
 end
 
 local function belong_group1_no_alpha(cand)
-    return is_table_type(cand) and (not has_ascii_alpha_fast(cand.text))
+    return is_table_type(cand) and (not has_english_token_fast(cand.text))
 end
 
 -- ========= 包裹映射 =========
@@ -203,7 +201,6 @@ local default_wrap_map = {
     qu = "??",
 }
 
-
 local function load_mapping_from_config(config)
     local symbol_map = {}
     for k, v in pairs(default_wrap_map) do symbol_map[k] = v end
@@ -220,13 +217,18 @@ local function load_mapping_from_config(config)
     return symbol_map
 end
 
-local function get_wrap_parts(wrap_str)
-    if not wrap_str or wrap_str == "" then return "", "" end
-    local chars = {}
-    for ch in wrap_str:gmatch("[%z\1-\127\194-\244][\128-\191]*") do table.insert(chars, ch) end
-    if #chars == 0 then return "", "" end
-    if #chars == 1 then return chars[1], "" end
-    return chars[1], chars[#chars]
+-- 预编译 wrap 对（优化项 1）
+local function precompile_wrap_parts(wrap_map)
+    local parts = {}
+    for k, wrap_str in pairs(wrap_map) do
+        local chars = {}
+        for ch in wrap_str:gmatch("[%z\1-\127\194-\244][\128-\191]*") do table.insert(chars, ch) end
+        local l, r = "", ""
+        if #chars >= 1 then l = chars[1] end
+        if #chars >= 2 then r = chars[#chars] end
+        parts[k] = { l = l, r = r }
+    end
+    return parts
 end
 
 local function clone_candidate(c)
@@ -240,16 +242,19 @@ function M.init(env)
     local cfg = env.engine and env.engine.schema and env.engine.schema.config or nil
     env.wrap_map = cfg and load_mapping_from_config(cfg) or default_wrap_map
 
-    -- 分隔符：默认 "\"；优先读取 paired_symbols/symbol，其次回退到 paired_symbols/trigger 的首字符
+    -- 预编译左右括
+    env.wrap_parts = precompile_wrap_parts(env.wrap_map)
+
+    -- 分隔符：默认 "\\"；优先读取 paired_symbols/symbol，其次回退到 paired_symbols/trigger 的首字符
     env.symbol = "\\"
     if cfg then
         local ok_sym, sym = pcall(function() return cfg:get_string("paired_symbols/symbol") end)
         if ok_sym and sym and #sym > 0 then
-            env.symbol = sym:sub(1, 1)
+            env.symbol = sub(sym, 1, 1)
         else
             local ok_tr, tr = pcall(function() return cfg:get_string("paired_symbols/trigger") end)
             if ok_tr and tr and #tr > 0 then
-                env.symbol = tr:sub(1, 1)
+                env.symbol = sub(tr, 1, 1)
             end
         end
     end
@@ -260,8 +265,15 @@ function M.init(env)
         if okb and bv ~= nil then env.suppress_mirror = bv end
     end
 
-    env.cache   = nil   -- 未锁定时记录的第一候选
-    env.locked  = false -- 是否处于“prefix/suffix”锁定
+    env.cache  = nil
+    env.locked = false
+
+    -- 可通过 schema 自定义排序窗口
+    env.settings = env.settings or {}
+    if cfg then
+        local ok_win, win = pcall(function() return cfg:get_string("paired_symbols/sort_window") end)
+        if ok_win and tonumber(win) then env.settings.sort_window = tonumber(win) end
+    end
 end
 
 function M.fini(env) end
@@ -279,27 +291,30 @@ function M.func(input, env)
         return
     end
 
+    -- 仅在可能触发 wrap 时才做 segmentation
+    local symbol = env.symbol
+    local code_has_symbol = symbol and #symbol == 1 and (find(code, symbol, 1, true) ~= nil)
+
     -- 最后一段 & 是否完全消耗
     local last_seg, last_text, fully_consumed = nil, nil, false
-    if #code > 0 then
+    if code_has_symbol then
         last_seg = comp and comp:back()
         local segm = comp and comp:toSegmentation()
         local confirmed = 0
         if segm and segm.get_confirmed_position then confirmed = segm:get_confirmed_position() or 0 end
         if last_seg and last_seg.start and last_seg._end then
             fully_consumed = (last_seg.start == confirmed) and (last_seg._end == #code)
-            if fully_consumed then last_text = code:sub(last_seg.start + 1, last_seg._end) end
+            if fully_consumed then last_text = sub(code, last_seg.start + 1, last_seg._end) end
         end
     end
 
-    -- 解析 prefix\suffix（固定单字符分隔符，默认 "\"，可从配置读取）
-    local symbol = env.symbol
+    -- 解析 prefix\suffix（固定单字符分隔符）
     local lock_now, wrap_key, keep_tail_len = false, nil, 0
     if fully_consumed and last_text and symbol and #symbol == 1 then
         local pos = last_text:find(symbol, 1, true) -- plain 查找
         if pos and pos > 1 then
-            local left  = last_text:sub(1, pos - 1)
-            local right = last_text:sub(pos + 1)
+            local left  = sub(last_text, 1, pos - 1)
+            local right = sub(last_text, pos + 1)
             if #left > 0 then
                 lock_now = true
                 keep_tail_len = 1 + #right
@@ -317,12 +332,14 @@ function M.func(input, env)
     if env and env.settings and tonumber(env.settings.sort_window) then
         sort_window = tonumber(env.settings.sort_window)
     end
-    local pure_code   = code:gsub("[%s%p]", "")
+    local pure_code   = gsub(code, "[%s%p]", "")
+    local pure_code_lc = pure_code:lower()
     local all_upper   = code:find("^%u%u") ~= nil
     local first_upper = (not all_upper) and (code:find("^%u") ~= nil)
     local enable_cap  = (code_len > 1 and not code:find("^[%l%p]"))
     local code_ctx    = {
         pure_code = pure_code,
+        pure_code_lc = pure_code_lc,
         all_upper = all_upper,
         first_upper = first_upper,
         enable_cap = enable_cap,
@@ -338,7 +355,7 @@ function M.func(input, env)
         return c
     end
 
-    -- 构造吞尾的包裹候选
+    -- 构造吞尾的包裹候选（使用预编译 parts
     local function build_wrapped_candidate(cand, wrapped)
         local start_pos = (last_seg and last_seg.start) or cand.start or 0
         local end_pos   = (last_seg and last_seg._end)  or (start_pos + #code)
@@ -347,7 +364,7 @@ function M.func(input, env)
         return nc
     end
 
-    -- 置顶缓存但不吞尾（锁定无 key）
+    -- 置顶缓存但不吞尾
     local function build_cached_first_span(base_cand, keep_len)
         if not base_cand then return nil end
         local formatted = format_and_autocap(base_cand, code_ctx)
@@ -359,20 +376,19 @@ function M.func(input, env)
         return nc
     end
 
-    -- 包裹（优先缓存，回退首选）
     local function build_wrapped_from_base(base_cand, key)
         if not base_cand or not key then return nil end
         local pair = env.wrap_map[key]
         if not pair then return nil end
         local formatted = format_and_autocap(base_cand, code_ctx)
-        local l, r = get_wrap_parts(pair)
-        local wrapped = (l or "") .. (formatted.text or "") .. (r or "")
+        local pr = env.wrap_parts[key] or {l = "", r = ""}
+        local wrapped = (pr.l or "") .. (formatted.text or "") .. (pr.r or "")
         local nc = build_wrapped_candidate(formatted, wrapped)
         return nc, (formatted.text or ""), wrapped
     end
 
-    -- 抑制镜像（仅本轮）
-    local suppress_original_text, suppress_wrapped_text = nil, nil
+    -- 抑制镜像
+    local suppress_set = nil
 
     -- ===== 非分组路径 =====
     if not do_group then
@@ -380,46 +396,40 @@ function M.func(input, env)
         for cand in input:iter() do
             idx = idx + 1
 
-            -- 未锁定：记录第一候选
+            -- 未锁定：记录第一候选（保留 clone 行为以保证数据独立性）
             if idx == 1 and (not env.locked) then
                 env.cache = clone_candidate(cand)
             end
 
             if idx == 1 then
                 if env.locked and (not wrap_key) and env.cache then
-                    -- 锁定但不包裹：置顶缓存，不吞尾
                     local nc = build_cached_first_span(env.cache, keep_tail_len)
                     if nc then yield(nc) end
                     goto continue_non_group
                 end
 
                 if wrap_key then
-                    -- 包裹并吞尾（优先缓存）
                     local base = env.cache or cand
                     local nc, base_text, wrapped_text = build_wrapped_from_base(base, wrap_key)
                     if nc then
                         yield(nc)
                         if env.suppress_mirror then
-                            suppress_original_text = base_text
-                            suppress_wrapped_text  = wrapped_text
+                            suppress_set = { }
+                            suppress_set[base_text] = true
+                            suppress_set[wrapped_text] = true
                         end
                     end
                     goto continue_non_group
                 end
 
-                -- 常规
                 cand = format_and_autocap(cand, code_ctx)
                 yield(cand)
                 goto continue_non_group
             end
 
-            -- 其余候选：若启用抑制，跳过与“基准/包裹文本”相同的候选
-            if env.suppress_mirror then
+            if env.suppress_mirror and suppress_set then
                 local t = cand.text
-                if (suppress_original_text and t == suppress_original_text)
-                    or (suppress_wrapped_text and t == suppress_wrapped_text) then
-                    goto continue_non_group
-                end
+                if suppress_set[t] then goto continue_non_group end
             end
 
             cand = format_and_autocap(cand, code_ctx)
@@ -440,10 +450,9 @@ function M.func(input, env)
 
     local function flush_groups()
         for _, c in ipairs(group2_others) do
-            if env.suppress_mirror then
+            if env.suppress_mirror and suppress_set then
                 local t = c.text
-                if (suppress_original_text and t == suppress_original_text)
-                    or (suppress_wrapped_text and t == suppress_wrapped_text) then
+                if suppress_set[t] then
                     -- skip
                 else
                     c = format_and_autocap(c, code_ctx)
@@ -456,7 +465,7 @@ function M.func(input, env)
                 yield(c)
             end
         end
-        group2_others = {}
+        for i = #group2_others, 1, -1 do group2_others[i] = nil end -- 原地清空，降低 GC（轻优化）
     end
 
     for cand in input:iter() do
@@ -478,8 +487,9 @@ function M.func(input, env)
                 if nc then
                     yield(nc); emitted = true
                     if env.suppress_mirror then
-                        suppress_original_text = base_text
-                        suppress_wrapped_text  = wrapped_text
+                        suppress_set = {}
+                        suppress_set[base_text] = true
+                        suppress_set[wrapped_text] = true
                     end
                 end
             end
@@ -493,12 +503,8 @@ function M.func(input, env)
         elseif idx == 2 and mode == "unknown" then
             if is_table_type(cand) then
                 mode = "passthrough"
-                if env.suppress_mirror then
-                    local t = cand.text
-                    if (suppress_original_text and t == suppress_original_text)
-                        or (suppress_wrapped_text and t == suppress_wrapped_text) then
-                        goto continue_group
-                    end
+                if env.suppress_mirror and suppress_set and suppress_set[cand.text] then
+                    goto continue_group
                 end
                 cand = format_and_autocap(cand, code_ctx)
                 cand = unify_tail_span(cand)
@@ -507,12 +513,8 @@ function M.func(input, env)
                 mode = "grouping"
                 grouped_cnt = 1
                 if belong_group1_no_alpha(cand) then
-                    if env.suppress_mirror then
-                        local t = cand.text
-                        if (suppress_original_text and t == suppress_original_text)
-                            or (suppress_wrapped_text and t == suppress_wrapped_text) then
-                            goto continue_group
-                        end
+                    if env.suppress_mirror and suppress_set and suppress_set[cand.text] then
+                        goto continue_group
                     end
                     cand = format_and_autocap(cand, code_ctx)
                     cand = unify_tail_span(cand)
@@ -528,12 +530,8 @@ function M.func(input, env)
 
         else
             if mode == "passthrough" then
-                if env.suppress_mirror then
-                    local t = cand.text
-                    if (suppress_original_text and t == suppress_original_text)
-                        or (suppress_wrapped_text and t == suppress_wrapped_text) then
-                        goto continue_group
-                    end
+                if env.suppress_mirror and suppress_set and suppress_set[cand.text] then
+                    goto continue_group
                 end
                 cand = format_and_autocap(cand, code_ctx)
                 cand = unify_tail_span(cand)
@@ -542,12 +540,8 @@ function M.func(input, env)
                 if (not window_closed) and ((sort_window <= 0) or (grouped_cnt < sort_window)) then
                     grouped_cnt = grouped_cnt + 1
                     if belong_group1_no_alpha(cand) then
-                        if env.suppress_mirror then
-                            local t = cand.text
-                            if (suppress_original_text and t == suppress_original_text)
-                                or (suppress_wrapped_text and t == suppress_wrapped_text) then
-                                goto continue_group
-                            end
+                        if env.suppress_mirror and suppress_set and suppress_set[cand.text] then
+                            goto continue_group
                         end
                         cand = format_and_autocap(cand, code_ctx)
                         cand = unify_tail_span(cand)
@@ -560,12 +554,8 @@ function M.func(input, env)
                         window_closed = true
                     end
                 else
-                    if env.suppress_mirror then
-                        local t = cand.text
-                        if (suppress_original_text and t == suppress_original_text)
-                            or (suppress_wrapped_text and t == suppress_wrapped_text) then
-                            goto continue_group
-                        end
+                    if env.suppress_mirror and suppress_set and suppress_set[cand.text] then
+                        goto continue_group
                     end
                     cand = format_and_autocap(cand, code_ctx)
                     cand = unify_tail_span(cand)
