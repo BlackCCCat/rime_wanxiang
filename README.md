@@ -137,6 +137,8 @@ schema,default,weasel,squirrel
 
 ![截图_选择区域_20240704121611.png](https://storage.deepin.org/thread/202407041149524870_截图_选择区域_20240704121611.png)
 
+实际上我们同时支持，```两分：你(ni`rfer，ni`re)、多分：莫（mu`ckrida）、笔画：你ni`pspzhpd```
+
 **功能4**  通过 拼音状态下``` ``〔反查：部件|笔画〕``` 来引导拆字模式 举例 ```震```  假设你不认识，你可以通过`雨和辰` 来合并输入，拼音状态输入后，继续输入其它字符字母az会消失如下图，输入 ```yu if``` 即雨 辰，结果出现了我们要的震字，且给出了辅助码 ```y``` 和  ```i```  ，```y```是雨的声母```y```，```i```是辰的声母```ch```，同时兼容通过hspnz代表横竖撇捺折五笔画。功能3是功能4的另一种表现形式,或者叫用法。这个功能依赖wanxiang_reverse.schema.yaml方案,可以通过custom配置成任意全拼双拼以匹配主方案一致的输入方式,因此是不是输入jn=jin需要看你具体的双拼类型。
 
  ![截图_选择区域_20240928112256.png](https://storage.deepin.org/thread/202409280324599355_截图_选择区域_20240928112256.png)
@@ -150,6 +152,8 @@ schema,default,weasel,squirrel
 ![截图_选择区域_20250512101713.png](https://storage.deepin.org/thread/202505120222163619_截图_选择区域_20250512101713.png)
 
 **功能6**  混合输入:字母、汉字、数字、用于连接的特殊符号等组合，以及英文混输，我们统一放在了wanxiang_mixedcode.schema.yaml混合编码方案里，此功能无需引导，直接输入，不参与组句，类似：1000wclips、AD钙奶、PN结、Type-C以及纯英文，同样可以通过custom来定义你所使用的双拼。
+
+![东风5C](https://github.com/amzxyz/amzxyz/blob/main/%E6%B7%B7%E5%90%88%E7%BC%96%E7%A0%81.jpg)
 
 **整合说明** 万象方案整合度很高，我们不希望使用户文件夹变得复杂，功能5中我们将两类习惯的五笔画和多分拆字和两分拆字整合到了一起，可以认为是4个挂接方案；在功能6中，我们将 英文输入、中英混合编码、以及一些其他混合编码整合到了一起，共享方案转写，两个功能都保证了可配置性，都能与你所使用的双拼契合，
 对于词库也都整合到了dicts里面，为了能更好的统一更新和分发，仓库中我们支持基础版本词库、携带pro的辅助码版本词库、英文词库、混合词库4个类别，在release中各自归类，最终做到了根目录15个文件、4个文件夹示人，其中的custom目录还携带了用户自定义的法宝秘籍，能称得上简约而不简单。
@@ -173,30 +177,63 @@ schema,default,weasel,squirrel
 #节日：ojr 或者 /jr
 #问候模板：/day 或者 oday
 ```
+<img src="https://github.com/amzxyz/amzxyz/blob/main/N20250102.jpg" height="100" width="620">
+<img src="https://github.com/amzxyz/amzxyz/blob/main/N0102.jpg" height="100" width="550">
 
 **Unicode：** 大写 U 开头，如 U62fc 得到「拼」。
 
+<img src="https://github.com/amzxyz/amzxyz/blob/main/U%E7%A0%81.jpg" height="100" width="280">
+
 **数字、金额大写：**  大写 R 开头，如 R1234 得到「一千二百三十四、壹仟贰佰叁拾肆元整」。
+
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E9%87%91%E9%A2%9D%E5%A4%A7%E5%86%99.jpg" height="100" width="550">
 
  **/引导模式：**  通过输入 /sx 快捷输入关于“数学”的特殊符号，具体能输入什么可以打开 symbols.yaml学习。
 
-**计算器：**  通过输入大写V引导继续输入如：V3+5  候选框就会有8和3+5=8，基础功能 `+ - * / % ^` 还支持 `sin(x) cos(x)` 等众多运算方式 [点击全面学习](https://github.com/gaboolic/rime-shuangpin-fuzhuma/blob/main/md/calc.md)
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E7%AC%A6%E5%8F%B7%E6%95%B0%E5%AD%A6.jpg" height="100" width="350">
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E7%AC%A6%E5%8F%B7%E5%A4%A7%E4%BA%8E.jpg" height="100" width="250">
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E7%AC%A6%E5%8F%B7%E5%9C%86%E7%82%B9.jpg" height="100" width="210">
+
+**计算器：**  通过输入大写V引导继续输入如：V3+5  候选框就会有8和3+5=8，基础功能 `+ - * / % ^` 还支持 `sin(x) cos(x)` 等众多运算方式，打开super_calculator.lua阅读相关用法。
+
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E8%AE%A1%E7%AE%97%E5%99%A81.png" height="100" width="400">
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E8%AE%A1%E7%AE%97%E5%99%A82.jpg" height="100" width="270">
 
 **自动上屏：**  例如：三位、四位简码唯一时，自动上屏如`jjkw岌岌可危` `zmhu怎么回事` 。默认未开启，方案文件中`speller:`字段下取消注释这两句开启 `#  auto_select: true  #  auto_select_pattern: ^[a-z]+/|^[a-df-zA-DF-Z]\w{3}|^e\w{4}`
 
 **错音错字提示：**  例如：输入`gei yu给予`，获得`jǐ yǔ`提示，此功能与全拼、双拼类型无关全部支持；
 
-**快符Lua：** 例如通过 ```a/``` ，快速自动上屏“！”符号或者定义为任意字符，值设置为repeat则意味着按下对应按键，享受26字母的扩展；
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E9%94%99%E9%9F%B3%E7%BB%99%E4%BA%88.jpg" height="100" width="200">      <img src="https://github.com/amzxyz/amzxyz/blob/main/%E9%94%99%E9%9F%B3%E5%B4%A9%E6%BA%83.jpg" height="100" width="170">
 
-**超级tips：** 支持将表情、化学式、翻译、简码 提示等等你能想到得数据获得提示显示并将通过一个自定义按键直接上屏，默认为“.” 避免了占用候选框，通过Control+t 进行开关。⚠️仓输入法、超越输入法设置按键交由rime去处理，没有特殊需求应该一律交给rime；
+**快符Lua：** 例如通过 ```a/``` ，快速自动上屏“！”符号或者定义为任意字符，享受26字母的扩展。其中值设置为`repeat`则意味着按下对应按键能否重复上一次上屏的内容；
+
+**超级tips：** 支持将表情、化学式、翻译、简码 提示等等你能想到得数据获得提示显示并将通过一个自定义按键直接上屏，默认为“.” 也表现为句号，如需句号翻页可以采用其他作为触发。避免了这类内容占用候选框，通过Control+t 进行开关。⚠️仓输入法、超越输入法设置按键交由rime去处理，没有特殊需求应该一律交给rime；
+
+化学式：<img src="https://github.com/amzxyz/amzxyz/blob/main/tips%E5%8C%96%E5%AD%A6%E5%BC%8F.jpg" height="100" width="210">符号：<img src="https://github.com/amzxyz/amzxyz/blob/main/tips%E7%AC%A6%E5%8F%B7.jpg" height="100" width="165">表情：<img src="https://github.com/amzxyz/amzxyz/blob/main/tips%E8%A1%A8%E6%83%85.jpg" height="100" width="210">
 
 **首选格式化：** 将自定义短语中，诸如\n \s \t 等行中标识符转换为实际的换行、空格、制表符等等，使得类似输入jys可以打出一首带格式的《静夜思》，这将成为类似书名号输入场景的利器。
 
+例：```静夜思\n\s\s李白\n床前明月光\n疑似地上霜\n举头望明月\n低头思故乡	jys```
+
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E6%A0%BC%E5%BC%8F%E5%8C%96.jpg" height="260" width="220"> 
+
 **首选加成对符号：** 将输入中的短语通过输入追加\a 这样的末尾编码，触发相对于a这个字母映射的成对符号，例如：``` sj mk lq lh ji\l=《三毛流浪记》```可以通过custom自定义符号和触发方式。
+
+工作逻辑：输入词汇编码 > 按下锁定按钮\  >  按下映射字符\a  >  《候选包裹成对符号》
+
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E9%A6%96%E9%80%89%E6%88%90%E5%AF%B9%E7%AC%A6%E5%8F%B71.jpg" height="100" width="150"> <img  src="https://github.com/amzxyz/amzxyz/blob/main/%E9%A6%96%E9%80%89%E6%88%90%E5%AF%B9%E7%AC%A6%E5%8F%B72.jpg" height="100" width="150"> <img  src="https://github.com/amzxyz/amzxyz/blob/main/%E9%A6%96%E9%80%89%E6%88%90%E5%AF%B9%E7%AC%A6%E5%8F%B73.jpg" height="100" width="190">
 
 **英文候选格式化：** 输入hello则得到hello，输入首字母大写Hello则得到Hello和一众首字母大写的联想词，输入前两码大写HEllo则得到全为大写的HELLO和一众大写英文。
 
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E9%A6%96%E5%AD%97%E6%AF%8D%E5%A4%A7%E5%86%99.jpg" height="100" width="520">
+<img src="https://github.com/amzxyz/amzxyz/blob/main/%E5%8F%8C%E5%AD%97%E6%AF%8D%E5%A4%A7%E5%86%99.jpg" height="100" width="550">
+
 **辅助码提示（仅PRO）：** 任意长度候选词的辅助码提示能力，默认开启1个字的辅助码，可以在方案文件中定义更长的长度。Ctrl+a可以实时在开启辅助码提示、开启声调全拼提示、关闭注释 三个状态循环，Ctrl+c开启拆分辅助提示，优先级高于普通辅助提示；
+
+<img  src="https://github.com/amzxyz/amzxyz/blob/main/%E8%BE%85%E5%8A%A9%E7%A0%81%E6%8F%90%E7%A4%BA.jpg" height="100" width="550">
+<img  src="https://github.com/amzxyz/amzxyz/blob/main/%E5%A3%B0%E8%B0%83%E6%8F%90%E7%A4%BA.jpg" height="100" width="530">
+<img  src="https://github.com/amzxyz/amzxyz/blob/main/%E6%8B%86%E5%88%86%E6%8F%90%E7%A4%BA.jpg" height="100" width="470">
+
 
 **输入码音调显示：** 通过Ctrl+s可以使得输入码实时动态显示全拼并加音调，这是万象特色功能；
 
@@ -270,7 +307,7 @@ B 重复以上操作完成更多设备的添加和同步
 
 **自定义词库：** 自定义词库首先要利用[LMDG](https://github.com/amzxyz/RIME-LMDG)中的脚本将你自己的词库刷成与万象同类型的声调、或者声调+辅助码的形态，因为主词库要参与转写。对于custom_phrase则需要手动编辑编码为实际输入的编码
 
-<img alt="pay" src="./custom/万象输入方案.png" height="3400" width="1000">
+<img alt="pay" src="./custom/万象输入方案.png" height="3600" width="950">
 
 ## 鸣谢
 
