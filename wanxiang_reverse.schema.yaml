@@ -2,7 +2,7 @@
 # encoding: utf-8
 ###############选择与之匹配的拼音方案#####################
 set_shuru_schema:
-  __include: 全拼    #可选的选项有（全拼, 自然码, 小鹤双拼, 微软双拼, 搜狗双拼, 智能ABC, 紫光双拼, 拼音加加, 国标双拼）
+  __include: 全拼    #可选的选项有（全拼, 自然码, 小鹤双拼, 微软双拼, 搜狗双拼, 智能ABC, 紫光双拼, 拼音加加, 国标双拼, 乱序17）
   __patch: hspzn      #笔画类型有hspzn和hupvd可选
 
 ######################################################
@@ -353,4 +353,64 @@ hupvd:
   - xform/([a-z>])ao(?=^|$|')/$1<c>/
   - xform/ui(?=^|$|')/<v>/
   - xform/in(?=^|$|')/<l>/
+  - xform/'|<|>//
+
+乱序17:
+  - derive/^([jqxy])u(?=^|$|')/$1v/
+  - derive/'([jqxy])u(?=^|$|')/'$1v/
+  - derive/^([aoe].*)(?=^|$|')/q$1/
+  - derive/'([aoe].*)(?=^|$|')/'q$1/
+  - xform/^([aoe])(.*)(?=^|$|')/q$1$2/
+  - xform/'([aoe])(.*)(?=^|$|')/'q$1$2/
+  - xform/^c/f/
+  - xform/^s/m/
+  - xform/^z/w/
+  - xform/'c/'f/
+  - xform/'s/'m/
+  - xform/'z/'w/  
+  - xform/^k/j/
+  - xform/^p/h/
+  - xform/^r/n/
+  - xform/'k/'j/
+  - xform/'p/'h/
+  - xform/'r/'n/
+  - xform/^mh/<s>/
+  - xform/^fh/<c>/
+  - xform/^wh/<z>/
+  - xform/'mh/'<s>/
+  - xform/'fh/'<c>/
+  - xform/'wh/'<z>/
+  - xform/([a-z>])uang(?=^|$|')/$1<q>/
+  - xform/([a-z>])iang(?=^|$|')/$1<c>/
+  - xform/([a-z>])iong(?=^|$|')/$1<b>/
+  - xform/([a-z>])ang(?=^|$|')/$1<z>/
+  - xform/([a-z>])eng(?=^|$|')/$1<y>/
+  - xform/([a-z>])ian(?=^|$|')/$1<q>/
+  - xform/([a-z>])iao(?=^|$|')/$1<z>/
+  - xform/([a-z>])ing(?=^|$|')/$1<y>/
+  - xform/([a-z>])ong(?=^|$|')/$1<t>/
+  - xform/([a-z>])uai(?=^|$|')/$1<x>/
+  - xform/([a-z>])uan(?=^|$|')/$1<x>/
+  - xform/([a-z>])ai(?=^|$|')/$1<l>/
+  - xform/([a-z>])an(?=^|$|')/$1<n>/
+  - xform/([a-z>])ao(?=^|$|')/$1<b>/
+  - xform/([a-z>])ei(?=^|$|')/$1<g>/
+  - xform/([a-z>])en(?=^|$|')/$1<s>/
+  - xform/([a-z>])er(?=^|$|')/$1<t>/
+  - xform/([a-z>])ua(?=^|$|')/$1<h>/
+  - xform/([a-z>])ie(?=^|$|')/$1<m>/
+  - xform/([a-z>])in(?=^|$|')/$1<s>/
+  - xform/([a-z>])iu(?=^|$|')/$1<f>/
+  - xform/([a-z>])ou(?=^|$|')/$1<f>/
+  - xform/([a-z>])ia(?=^|$|')/$1<h>/
+  - xform/([a-z>])[uv]e(?=^|$|')/$1<l>/
+  - xform/([a-z>])ui(?=^|$|')/$1<c>/
+  - xform/([a-z>])un(?=^|$|')/$1<g>/
+  - xform/([a-z>])uo(?=^|$|')/$1<m>/
+  - xform/([a-z>])a(?=^|$|')/$1<h>/
+  - xform/([a-z>])e(?=^|$|')/$1<w>/
+  - xform/([a-z>])i(?=^|$|')/$1<j>/
+  - xform/([a-z>])o(?=^|$|')/$1<x>/
+  - xform/([a-z>])u(?=^|$|')/$1<d>/
+  - xform/([a-z>])v(?=^|$|')/$1<x>/  
   - xform/'|<|>//
