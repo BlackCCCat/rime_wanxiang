@@ -191,6 +191,8 @@ cg	Cg
 re	Re
 os	Os
 I'd	Id
+YY	YY
+CRT	CRT
 mAh	MAh
 PTT	PTT
 IEN	IEN
@@ -338,6 +340,7 @@ CBA	CBA
 CDC	CDC
 CDN	CDN
 CEF	CEF
+CDR	CDR
 Cen	Cen
 CEO	CEO
 CFO	CFO
@@ -3619,6 +3622,7 @@ liny	Liny
 lett	Lett
 tyro	Tyro
 epos	Epos
+Yonex	Yonex
 goad	Goad
 wend	Wend
 pare	Pare

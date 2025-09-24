@@ -15,7 +15,7 @@ remove_schema() {
     SCHEMA=$1
     OUT_DIR=$2
 
-    sed -i -E "/^\s+-\s+schema:\s+${SCHEMA}\s*$/d" "$OUT_DIR/default.yaml"
+    sed -i -E "/^\s+-\s+schema:\s+${SCHEMA}\s*$/d" "$OUT_DIR/default.custom.yaml"
 }
 
 package_schema_base() {

@@ -50,7 +50,7 @@ switches:
   - name: corrector                     #一个基于数据库策略的编码纠错工具,优势是跨词汇直接修正编码,与转写方式形成互补，归属：typo_corrector.lua
     reset: 1
     states: [ 纠错关, 纠错开 ]
-  - name: char_priority                #多体现在编码重合但候选有单字或者多字的情况`引导的辅码查词时是否单字优先，全拼常见，类似于特定编码情况下、反查状态下的调序能力。归属：search.lua
+  - name: char_priority                #多体现在编码重合但候选有单字或者多字的情况`引导的辅码查词时是否单字优先，全拼常见，类似于特定编码情况下、反查状态下的调序能力。归属：super_lookup.lua
     states: [词组先, 单字先]
 
 
