@@ -40,7 +40,7 @@ package_schema_base() {
         if [[ "$name" == "wanxiang_chaifen.dict.yaml" || "$name" == "wanxiang_chaifen.schema.yaml" ]]; then continue; fi
         if [[ "$name" == "wanxiang_charset.dict.yaml" || "$name" == "wanxiang_charset.schema.yaml" ]]; then continue; fi
         #if [[ "$name" == "custom_phrase_flypy.txt" ]]; then continue; fi
-        if [[ "$name" == "dist" ]]; then continue; fi
+        if [[ "$name" == "custom" || "$name" == "dist" ]]; then continue; fi
         if [[ "$name" == "LICENSE" ]]; then continue; fi
 
         # 处理 dicts 文件夹
@@ -127,7 +127,7 @@ package_schema_pro() {
         if [[ "$name" == "CHANGELOG.md" ]]; then continue; fi
         if [[ "$name" == "wanxiang.dict.yaml" || "$name" == "wanxiang.schema.yaml" ]]; then continue; fi
         if [[ -e "$OUT_DIR/$name" ]]; then continue; fi
-        if [[ "$name" == "dist" ]]; then continue; fi
+        if [[ "$name" == "custom" || "$name" == "dist" ]]; then continue; fi
         if [[ "$name" == "LICENSE" ]]; then continue; fi
         cp -r "$item" "$OUT_DIR/"
     done
