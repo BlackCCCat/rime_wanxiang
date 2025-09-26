@@ -316,7 +316,7 @@ B 重复以上操作完成更多设备的添加和同步
 
 **自定义词库：** 自定义词库首先要利用[LMDG](https://github.com/amzxyz/RIME-LMDG)中的脚本将你自己的词库刷成与万象同类型的声调、或者声调+辅助码的形态，因为主词库要参与转写。对于custom_phrase则需要手动编辑编码为实际输入的编码
 
-<img alt="pay" src="./custom/万象输入方案.png" height="3600" width="950">
+<img alt="pay" src="./custom/万象输入方案.png">
 
 ## 鸣谢
 
