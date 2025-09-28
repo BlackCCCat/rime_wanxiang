@@ -65,39 +65,39 @@ jobs:
             exit 1
           fi
 
-      # 6. 将拆分后的词库文件夹一并打包，并先复制通用文件
       - name: Pack splitted dicts
         if: env.SKIP != 'true'
         run: |
           set -euo pipefail
           echo "Packing splitted dict folders..."
 
-          # 仅保留六套 pro-* + base-dicts
-          declare -A dict_map=(
-            ["pro-moqi-fuzhu-dicts"]="1-pro-moqi-fuzhu-dicts.zip"
-            ["pro-flypy-fuzhu-dicts"]="2-pro-flypy-fuzhu-dicts.zip"
-            ["pro-zrm-fuzhu-dicts"]="3-pro-zrm-fuzhu-dicts.zip"
-            ["pro-tiger-fuzhu-dicts"]="4-pro-tiger-fuzhu-dicts.zip"
-            ["pro-wubi-fuzhu-dicts"]="5-pro-wubi-fuzhu-dicts.zip"
-            ["pro-hanxin-fuzhu-dicts"]="6-pro-hanxin-fuzhu-dicts.zip"
-            ["base-dicts"]="7-base-dicts.zip"
-          )
-
           mkdir -p dist
 
-          for dict_dir in "${!dict_map[@]}"; do
+          # 按固定顺序打包；zip 名不带数字前缀
+          folders=(
+            "pro-moqi-fuzhu-dicts"
+            "pro-flypy-fuzhu-dicts"
+            "pro-zrm-fuzhu-dicts"
+            "pro-tiger-fuzhu-dicts"
+            "pro-wubi-fuzhu-dicts"
+            "pro-hanxin-fuzhu-dicts"
+            "base-dicts"
+          )
+
+          for dict_dir in "${folders[@]}"; do
             if [[ -d "$dict_dir" ]]; then
-              # 只给 pro-* 目录补通用文件；base-dicts 已经是 dicts 全量，不必重复拷贝
+              # 只给 pro-* 目录补通用文件；base-dicts 已是 dicts 全量，无需拷贝
               if [[ "$dict_dir" == pro-* ]]; then
                 echo "Copying common files into $dict_dir ..."
-                cp -f dicts/en.dict.yaml        "$dict_dir/" || true
-                cp -f "dicts/cn&en.dict.yaml"   "$dict_dir/" || true
-                cp -f dicts/chengyu.txt         "$dict_dir/" || true
+                cp -f dicts/en.dict.yaml      "$dict_dir/" || true
+                cp -f "dicts/cn&en.dict.yaml" "$dict_dir/" || true
+                cp -f dicts/chengyu.txt       "$dict_dir/" || true
               fi
 
-              echo "Packing: ${dict_map[$dict_dir]}"
-              zip -r "dist/${dict_map[$dict_dir]}" "$dict_dir" >/dev/null
-              echo "Packed: dist/${dict_map[$dict_dir]}"
+              zip_name="${dict_dir}.zip"
+              echo "Packing: ${zip_name}"
+              zip -r -q "dist/${zip_name}" "$dict_dir"
+              echo "Packed: dist/${zip_name}"
             else
               echo "Warning: $dict_dir folder does not exist. Skipped."
             fi
@@ -166,13 +166,13 @@ jobs:
             - **pro-hanxin-fuzhu-dicts.zip**：携带了汉心辅助码的词库文件
             - **[wanxiang-lts-zh-hans.gram](https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram)**：与词库同步更新的语法模型
           files: |
-            dist/1-pro-moqi-fuzhu-dicts.zip
-            dist/2-pro-flypy-fuzhu-dicts.zip
-            dist/3-pro-zrm-fuzhu-dicts.zip
-            dist/4-pro-tiger-fuzhu-dicts.zip
-            dist/5-pro-wubi-fuzhu-dicts.zip
-            dist/6-pro-hanxin-fuzhu-dicts.zip
-            dist/7-base-dicts.zip
+            dist/pro-moqi-fuzhu-dicts.zip
+            dist/pro-flypy-fuzhu-dicts.zip
+            dist/pro-zrm-fuzhu-dicts.zip
+            dist/pro-tiger-fuzhu-dicts.zip
+            dist/pro-wubi-fuzhu-dicts.zip
+            dist/pro-hanxin-fuzhu-dicts.zip
+            dist/base-dicts.zip
             wanxiang-lts-zh-hans.gram
           draft: false
           prerelease: false
