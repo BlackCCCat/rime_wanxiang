@@ -47,7 +47,67 @@ base:
       - abbrev/^([aoe])([ioun])(\d)$/$1/               #携带两个字符的元音首字母派生出简码来
       - abbrev/^([aoe])([ioun])(\d)$/$1$3/             #携带两个字符的元音首字母派生出简码来+数字声调
       - derive/(.+)(\d)/$1/
-      - derive/(.+)ong$/$1on/   # lon → long
+      - derive/([zcs])h(a|e|i|u|ai|ei|an|en|ou|uo|ua|un|ui|uan|uai|uang|ang|eng|ong)$/h$1$2/  # hzi → zhi
+      - derive/([zcs])h([aeiu])$/$1$2h/  # zih → zhi
+      # ai
+      - derive/^([wghk])ai$/$1ia/  # wia → wai
+      # ia
+      - derive/([qjx])ia$/$1ai/  # qai → qia
+      # ei
+      - derive/([wtfghkz])ei$/$1ie/
+      # ie
+      - derive/([jqx])ie$/$1ei/
+      # ao
+      - derive/([rtypsdghklzcbnm])ao$/$1oa/
+      # ou
+      - derive/([ypfm])ou$/$1uo/
+      # an
+      - derive/([wrtypsdfghklzcbnm])an$/$1na/
+      # ang
+      - derive/([wrtypsdfghklzcbnm])ang$/$1nag/
+      - derive/([wrtypsdfghklzcbnm])ang$/$1agn/
+      # eng
+      - derive/([wrtpsdfghklzcbnm])eng$/$1neg/
+      - derive/([wrtpsdfghklzcbnm])eng$/$1egn/
+      # ing
+      - derive/([qtypdjlxbnm])ing$/$1nig/
+      - derive/([qtypdjlxbnm])ing$/$1ign/
+      # ong
+      - derive/([rtysdghklzcn])ong$/$1nog/
+      - derive/([rtysdghklzcn])ong$/$1ogn/
+      # iao
+      - derive/([qtpdjlxbnm])iao$/$1ioa/
+      - derive/([qtpdjlxbnm])iao$/$1oia/
+      # ui
+      - derive/([rtsghkzc])ui$/$1iu/
+      # iu
+      - derive/([qjlxnm])iu$/$1ui/
+      # ian
+      - derive/([qtpdjlxbnm])ian$/$1iam/
+      # iang
+      - derive/([qjlxn])iang$/$1aing/
+      - derive/([qjlxn])iang$/$1inag/
+      # ua
+      - derive/([g|k|h|zh|sh])ua$/$1au/
+      # uai
+      - derive/([g|h|k|zh|ch|sh])uai$/$1aui/
+      - derive/([g|h|k|zh|ch|sh])uai$/$1uia/
+      # un
+      - derive/([qrtysdghjklzxc])un$/$1nu/
+      # ue
+      - derive/([nlyjqx])ue$/$1eu/
+      # uang
+      - derive/([g|h|k|zh|ch|sh])uang$/$1aung/
+      - derive/([g|h|k|zh|ch|sh])uang$/$1uagn/
+      - derive/([g|h|k|zh|ch|sh])uang$/$1unag/
+      - derive/([g|h|k|zh|ch|sh])uang$/$1augn/
+      # iong
+      - derive/([jqx])iong$/$1inog/
+      - derive/([jqx])iong$/$1oing/
+      - derive/([jqx])iong$/$1iogn/
+      - derive/([jqx])iong$/$1oign/
+      # 其他
+      - derive/ong$/on/ # lon → long
       - derive/([tl])eng$/$1en/ # ten → teng
   自然码: 
     __append:
@@ -653,6 +713,73 @@ base:
       - xform/(.)ou$/$1Ⓟ/
       - xform/in$/Ⓛ/
       - xlit/ⓆⓌⓇⓉⓎⓊⒾⓄⓅⓈⒹⒻⒼⒽⓂⒿⒸⓀⓁⓏⓍⓋⒷⓃ/qwrtyuiopsdfghmjcklzxvbn/
+
+  国标双拼:
+    __append:
+      - xform/Ⅸ//  #用于Lua判断输入类型的标记
+      - xform/^([a-z]+)$/$1④/
+      - xform/^(.*)ā(.*)$/$1a$2①/
+      - xform/^(.*)á(.*)$/$1a$2②/
+      - xform/^(.*)ǎ(.*)$/$1a$2③/
+      - xform/^(.*)à(.*)$/$1a$2④/
+      - xform/^(.*)ō(.*)$/$1o$2①/
+      - xform/^(.*)ó(.*)$/$1o$2②/
+      - xform/^(.*)ǒ(.*)$/$1o$2③/
+      - xform/^(.*)ò(.*)$/$1o$2④/
+      - xform/^(.*)ē(.*)$/$1e$2①/
+      - xform/^(.*)é(.*)$/$1e$2②/
+      - xform/^(.*)ě(.*)$/$1e$2③/
+      - xform/^(.*)è(.*)$/$1e$2④/
+      - xform/^(.*)ī(.*)$/$1i$2①/
+      - xform/^(.*)í(.*)$/$1i$2②/
+      - xform/^(.*)ǐ(.*)$/$1i$2③/
+      - xform/^(.*)ì(.*)$/$1i$2④/
+      - xform/^(.*)ū(.*)$/$1u$2①/
+      - xform/^(.*)ú(.*)$/$1u$2②/
+      - xform/^(.*)ǔ(.*)$/$1u$2③/
+      - xform/^(.*)ù(.*)$/$1u$2④/
+      - xform/^(.*)ǖ(.*)$/$1v$2①/
+      - xform/^(.*)ǘ(.*)$/$1v$2②/
+      - xform/^(.*)ǚ(.*)$/$1v$2③/
+      - xform/^(.*)ǜ(.*)$/$1v$2④/
+      - xform/^(.*)ü(.*)$/$1v$2/
+      - xform/^(.*)ń(.*)$/$1n$2②/
+      - xform/^(.*)ň(.*)$/$1n$2③/
+      - xform/^(.*)ǹ(.*)$/$1n$2④/
+      - xlit/①②③④/7890/
+      - derive/^ng(\d)$/eng$1/
+      - xform/^n(\d)/en$1/
+      - derive/^([jqxy])u(\d)$/$1v$2/
+      - derive/^([aoe])([ioun])(\d)$/$1$1$2$3/
+      - xform/^([aoe])(ng)?(\d)$/$1$1$2$3/
+      - xform/^(\w+?)[iu]a(\d)$/$1Ⓠ$2/
+      - xform/^(\w+?)[vu]an(\d)$/$1Ⓦ$2/
+      - xform/^(\w+?)en(\d)$/$1Ⓡ$2/
+      - xform/^(\w+?)ie(\d)$/$1Ⓣ$2/
+      - xform/^(\w+?)(iu|uai)(\d)$/$1Ⓨ$3/
+      - xform/^(\w+?)uo(\d)$/$1Ⓞ$2/
+      - xform/^(\w+?)ou(\d)$/$1Ⓟ$2/
+      - xform/^(\w+?)i?ong(\d)$/$1Ⓢ$2/
+      - xform/^(\w+?)ian(\d)$/$1Ⓓ$2/
+      - xform/^(\w+?)an(\d)$/$1Ⓕ$2/
+      - xform/^(\w+?)(iang|uang)(\d)$/$1Ⓝ$3/
+      - xform/^(\w+?)iao(\d)$/$1Ⓜ$2/
+      - xform/^(\w+?)ang(\d)$/$1Ⓖ$2/
+      - xform/^(\w+?)eng(\d)$/$1Ⓗ$2/
+      - xform/^(\w+?)ing(\d)$/$1Ⓙ$2/
+      - xform/^(\w+?)ai(\d)$/$1Ⓚ$2/
+      - xform/^(\w+?)(in|er)(\d)$/$1Ⓛ$3/
+      - xform/^(\w+?)[vu]n(\d)$/$1Ⓩ$2/
+      - xform/^(\w+?)[vu]e(\d)$/$1Ⓧ$2/
+      - xform/^(\w+?)ao(\d)$/$1Ⓒ$2/
+      - xform/^(\w+?)(v|ui)(\d)$/$1Ⓥ$3/
+      - xform/^(\w+?)ei(\d)$/$1Ⓑ$2/
+      - xform/^zh/Ⓥ/
+      - xform/^ch/Ⓘ/
+      - xform/^sh/Ⓤ/
+      - xlit/ⓆⓌⓇⓉⓎⓊⒾⓄⓅⓈⒹⒻⒼⒽⒿⓀⓁⓏⓍⒸⓋⒷⓃⓂ/qwrtyuiopsdfghjklzxcvbnm/
+
+
   乱序17:  
     __append:
       - xform/Ⅹ//  #用于Lua判断输入类型的标记
