@@ -1,5 +1,5 @@
 --@amzxyz https://github.com/amzxyz/rime_wanxiang
--- 省略说明注释 …
+
 
 local wanxiang = require('wanxiang')
 
@@ -20,20 +20,10 @@ local function remove_pinyin_tone(s)
     return table.concat(result)
 end
 
-local patterns = {
-    fuzhu = "[^;];(.*)$",
-    tone = "([^;]*);",
-    moqi = "[^;]*;([^;]*);",
-    flypy = "[^;]*;[^;]*;([^;]*);",
-    zrm = "[^;]*;[^;]*;[^;]*;([^;]*);",
-    tiger = "[^;]*;[^;]*;[^;]*;[^;]*;([^;]*);",
-    wubi = "[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;([^;]*);",
-    hanxin = "[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;([^;]*);"
-}
--- #########################
+-- ----------------------
 -- # 辅助码拆分提示模块
 -- PRO 专用
--- #########################
+-- ----------------------
 local CF = {}
 function CF.init(env)
     if wanxiang.is_pro_scheme(env) then -- pro 版直接初始化
@@ -58,43 +48,24 @@ function CF.get_comment(cand, env)
     if not dict then return "" end
 
     local raw = dict:lookup(cand.text)
-    if raw == "" then return "" end
-    -- 跳过 tone 类型
-    local fuzhu_type = env.settings.fuzhu_type or ""
-    if fuzhu_type == "tone" then
-        return ""
-    end
-    -- 辅助码类型 → 圈字映射
-    local mark_map = {
-        hanxin = "Ⓐ",
-        tiger  = "Ⓒ",
-        flypy  = "Ⓓ",
-        moqi   = "Ⓔ",
-        zrm    = "Ⓕ",
-        wubi   = "Ⓑ"
-    }
-    local fuzhu_type = env.settings.fuzhu_type or ""
-    local mark = mark_map[fuzhu_type]
-    if not mark then return raw end  -- 如果没有匹配的圈字，返回整个 raw
+    if not raw or raw == "" then return "" end
 
-    -- 拆分各字注释段（按空格、或用 %s 拆分多个注释块）
-    local segments = {}
-    for segment in raw:gmatch("[^%s]+") do
-        table.insert(segments, segment)
-    end
-    -- 遍历查找包含指定圈字的片段
-    for _, seg in ipairs(segments) do
-        if seg:find(mark, 1, true) then
-            -- 去除圈字标志，返回剩余内容
-            return seg:gsub(mark, "", 1)
+    local tpl = (env and env.settings and env.settings.chaifen) or ""
+
+    if tpl ~= "" then
+        -- 取 chaifen 左右两边
+        local left, right = tpl:match("^(.-)chaifen(.-)$")
+        if left then
+            return left .. raw .. right
         end
     end
-    return raw  -- 如果没有任何片段含圈字，也返回原始内容
+
+    return raw
 end
 
--- #########################
+-- ----------------------
 -- # 错音错字提示模块
--- #########################
+-- ----------------------
 local CR = {}
 local corrections_cache = nil -- 用于缓存已加载的词典
 function CR.init(env)
@@ -127,22 +98,24 @@ function CR.init(env)
 end
 
 function CR.get_comment(cand)
-    -- 使用候选词的 comment 作为 code，在缓存中查找对应的修正
-    local correction = nil
-    if corrections_cache then
-        correction = corrections_cache[cand.comment]
+    local correction = corrections_cache and corrections_cache[cand.comment] or nil
+    if not (correction and cand.text == correction.text) then
+        return nil
     end
-    if correction and cand.text == correction.text then
-        -- 用新的注释替换默认注释
-        local final_comment = CR.style:gsub("{comment}", correction.comment)
-        return final_comment
+    -- 只认占位符 `comment`，按“刀法”切分
+    local tpl = CR.style or "comment"
+    local left, right = tpl:match("^(.-)comment(.-)$")
+
+    if left then
+        return left .. correction.comment .. right
+    else
+        return correction.comment
     end
-    return nil
 end
 
--- ################################
+-- ----------------------
 -- 部件组字返回的注释
--- ################################
+-- ----------------------
 ---@return string
 local function get_az_comment(_, env, initial_comment)
     if not initial_comment or initial_comment == "" then return "〔无〕" end
@@ -160,18 +133,12 @@ local function get_az_comment(_, env, initial_comment)
         local pinyin = segment:match("^[^;~]+")
         local fz = nil
 
-        if semicolon_count == 0 then
-            -- 无分号，只收集拼音
-            fz = nil
-        elseif semicolon_count == 1 then
-            -- 一个分号，取后段
+        if semicolon_count == 1 then
+            -- 一个分号：取后段
             fz = segment:match(";(.+)$")
         else
-            -- 多个分号，使用模式提取
-            local pattern = patterns[env.settings.fuzhu_type]
-            if pattern then
-                fz = segment:match(pattern)
-            end
+            -- 无分号不取辅助码
+            fz = nil
         end
 
         if pinyin then table.insert(pinyins, pinyin) end
@@ -189,9 +156,9 @@ local function get_az_comment(_, env, initial_comment)
     end
     return final_comment or "〔无〕"
 end
--- #########################
+-- ----------------------
 -- # 辅助码提示或带调全拼注释模块 (Fuzhu)
--- #########################
+-- ----------------------
 local function get_fz_comment(cand, env, initial_comment)
     local length = utf8.len(cand.text)
     if length > env.settings.candidate_length then
@@ -205,7 +172,7 @@ local function get_fz_comment(cand, env, initial_comment)
 
     -- 根据 option 动态决定是否强制使用 tone
     local use_tone = env.engine.context:get_option("tone_hint")
-    local fuzhu_type = use_tone and "tone" or env.settings.fuzhu_type
+    local fuzhu_type = use_tone and "tone" or "fuzhu"
 
     local first_segment = segments[1] or ""
     local semicolon_count = select(2, first_segment:gsub(";", ""))
@@ -213,19 +180,25 @@ local function get_fz_comment(cand, env, initial_comment)
     -- 没有分号的情况
     if semicolon_count == 0 then
         return initial_comment:gsub(auto_delimiter, " ")
-    else   -- 有分号的情况根据类型选择
-        local pattern = patterns[fuzhu_type]
-        if pattern then
-            for _, segment in ipairs(segments) do
-                local match = segment:match(pattern)
-                if match then
-                    table.insert(fuzhu_comments, match)
+    else
+        -- 有分号：按类型提取
+        for _, segment in ipairs(segments) do
+            if fuzhu_type == "tone" then
+                -- 取第一个分号“前”的内容
+                local before = segment:match("^(.-);")
+                if before and before ~= "" then
+                    table.insert(fuzhu_comments, before)
+                end
+            else -- "fuzhu"
+                -- 取第一个分号“后”的内容（到行尾）
+                local after = segment:match(";(.+)$")
+                if after and after ~= "" then
+                    table.insert(fuzhu_comments, after)
                 end
             end
-        else
-            return ""
         end
     end
+
     -- 最终拼接输出，fuzhu用 `,`，tone用 /连接
     if #fuzhu_comments > 0 then
         if fuzhu_type == "tone" then
@@ -237,9 +210,9 @@ local function get_fz_comment(cand, env, initial_comment)
         return ""
     end
 end
--- #########################
+-- ----------------------
 -- # 自动无词频造词模块
--- #########################
+-- ----------------------
 local AP = {}
 local comment_cache = {}
 
@@ -371,9 +344,9 @@ function AP.is_chinese_only(text)
     end
     return true
 end
--- #########################
+-- ----------------------
 -- 主函数：根据优先级处理候选词的注释和preedit
--- #########################
+-- ----------------------
 local ZH = {}
 function ZH.init(env)
     local config = env.engine.schema.config
@@ -386,8 +359,8 @@ function ZH.init(env)
         manual_delimiter = manual_delimiter,
         corrector_enabled = config:get_bool("super_comment/corrector") or true,
         corrector_type = config:get_string("super_comment/corrector_type") or "{comment}",
+        chaifen = config:get_string("super_comment/chaifen") or "〔chaifen〕",
         candidate_length = tonumber(config:get_string("super_comment/candidate_length")) or 1,
-        fuzhu_type = config:get_string("super_comment/fuzhu_type") or ""
     }
     CR.init(env)
     AP.init(env)
