@@ -32,15 +32,39 @@ local function replace_schema(file_path, target_schema)
 
     -- 根据文件名决定替换模式
     if file_path:find("wanxiang_reverse") then
+       -- 把 "__include: wanxiang_reverse.schema:/"（含可选后缀）改成 "__include: wanxiang_algebra:/mixed/"
+        content = content:gsub("(%-?%s*__include:%s*)wanxiang_reverse%.schema:/[^%s\r\n]*", "%1wanxiang_algebra:/reverse/" .. target_schema)
+        -- "__patch: wanxiang_reverse.schema:/hspzn" -> "__patch: wanxiang_algebra:/reverse/hspzn"
+        content = content:gsub("(%-?%s*__patch:%s*)wanxiang_reverse%.schema:/([^%s\r\n]+)", "%1wanxiang_algebra:/reverse/%2")
+
         content = content:gsub("([%s]*__include:%s*wanxiang_algebra:/reverse/)[^%sa-zA-Z\r\n]+", "%1" .. target_schema)
 
     elseif file_path:find("wanxiang_mixedcode") then
+
+        -- "__include: wanxiang_mixedcode.schema:/全拼"
+        --   -> "__include: wanxiang_algebra:/mixed/通用派生规则"
+        --      "__patch:   wanxiang_algebra:/mixed/全拼"
+        content = content:gsub(
+        "(%-?%s*)__include:%s*wanxiang_mixedcode%.schema:/全拼",
+        function(lead)
+            return lead .. "__include: wanxiang_algebra:/mixed/通用派生规则\n"
+                .. lead .. "__patch:  wanxiang_algebra:/mixed/全拼"
+        end
+        )
         content = content:gsub("([%s]*__patch:%s*wanxiang_algebra:/mixed/)[^%sa-zA-Z\r\n]+", "%1" .. target_schema)
 
     elseif file_path:find("wanxiang%.custom") or file_path:find("wanxiang_pro%.custom") then
+        -- 先把旧前缀整体替换为新前缀
+        -- "- wanxiang.schema:/"            -> "- wanxiang_algebra:/base/"
+        -- "- wanxiang_pro.schema:/"        -> "- wanxiang_algebra:/pro/"
+        content = content:gsub("(%-+%s*)wanxiang%.schema:/", "%1wanxiang_algebra:/base/")
+        content = content:gsub("(%-+%s*)wanxiang_pro%.schema:/", "%1wanxiang_algebra:/pro/")
+
+        -- 再将 base/pro 后面的 schema 名替换为 target_schema
         content = content:gsub("([%s%-]*wanxiang_algebra:/pro/)[^%sa-zA-Z\r\n]+", "%1" .. target_schema, 1)
         content = content:gsub("([%s%-]*wanxiang_algebra:/base/)[^%sa-zA-Z\r\n]+", "%1" .. target_schema, 1)
     end
+
     
 
     f = io.open(file_path, "w")
