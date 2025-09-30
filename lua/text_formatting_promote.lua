@@ -63,6 +63,25 @@ local function ascii_equal_ignore_case_to_pure(text, pure_code_lc)
     end
     return true
 end
+-- ========= 空白规范化（NBSP/全角空格→普通空格；去零宽/BOM）=========
+local NBSP = string.char(0xC2, 0xA0)       -- U+00A0 不换行空格
+local FWSP = string.char(0xE3, 0x80, 0x80) -- U+3000 全角空格
+local ZWSP = string.char(0xE2, 0x80, 0x8B) -- U+200B 零宽空格
+local BOM  = string.char(0xEF, 0xBB, 0xBF) -- U+FEFF BOM
+local ZWNJ = string.char(0xE2, 0x80, 0x8C) -- U+200C 零宽不连字
+local ZWJ  = string.char(0xE2, 0x80, 0x8D) -- U+200D 零宽连字
+
+local function normalize_spaces(s)
+    if not s or s == "" then return s end
+    -- 统一空格，并去掉零宽类字符
+    s = s:gsub(NBSP, " ")
+         :gsub(FWSP, " ")
+         :gsub(ZWSP, "")
+         :gsub(BOM,  "")
+         :gsub(ZWNJ, "")
+         :gsub(ZWJ,  "")
+    return s
+end
 
 -- ========= 文本格式化（转义 + 自动大写）=========
 local escape_map = {
@@ -78,22 +97,25 @@ local function apply_escape_fast(text)
 end
 
 local function format_and_autocap(cand, code_ctx)
-    -- 对候选做转义与英文大写
+    -- 对候选做：空白规范化 → 转义替换 → 英文大写
     local text = cand.text
     if not text or text == "" then return cand end
-    local b1 = byte(text, 1)
-    local has_backslash = (find(text, "\\", 1, true) ~= nil)
-    if (not has_backslash) and b1 and b1 > 127 then
-        -- 纯非 ASCII 且无转义：直接返回
-        return cand
-    end
 
-    local changed = false
+    -- ① 空白规范化（确保 NBSP/全角空格被处理，即使没有反斜杠也会生效）
+    local norm = normalize_spaces(text)
+    local changed = (norm ~= text)
+    text = norm
+
+    local has_backslash = (find(text, "\\", 1, true) ~= nil)
+    local b1 = byte(text, 1)
+
+    -- ② 转义替换
     if has_backslash then
         local t2, ch = apply_escape_fast(text)
         if ch then text, changed = t2, true end
     end
 
+    -- ③ 英文自动大写（仅 ASCII 单词 & 与编码匹配的候选）
     if code_ctx.enable_cap then
         if b1 and b1 <= 127 and is_ascii_word_fast(text) then
             if cand.type == "completion" or ascii_equal_ignore_case_to_pure(text, code_ctx.pure_code_lc) then
