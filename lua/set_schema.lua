@@ -63,9 +63,8 @@ local function replace_schema(file_path, target_schema)
         -- 再将 base/pro 后面的 schema 名替换为 target_schema
         content = content:gsub("([%s%-]*wanxiang_algebra:/pro/)[^%sa-zA-Z\r\n]+", "%1" .. target_schema, 1)
         content = content:gsub("([%s%-]*wanxiang_algebra:/base/)[^%sa-zA-Z\r\n]+", "%1" .. target_schema, 1)
-    end
 
-    
+    end
 
     f = io.open(file_path, "w")
     if not f then 
@@ -78,6 +77,41 @@ end
 
 -- translator 主函数
 local function translator(input, seg, env)
+    if input == "/zjf" or input == "/jjf" then
+        local target_aux = (input == "/zjf") and "直接辅助" or "间接辅助"
+        local user_dir = rime_api.get_user_data_dir()
+        local paths = {
+            user_dir .. "/wanxiang_pro.custom.yaml",
+            user_dir .. "/wanxiang.custom.yaml",
+        }
+
+        local total_hits, touched = 0, 0
+        for _, p in ipairs(paths) do
+            local f = io.open(p, "r")
+            if f then
+                local content = f:read("*a"); f:close()
+
+                -- 两次 gsub 都要接收“新文本 + 命中次数”
+                local n1, n2 = 0, 0
+                content, n1 = content:gsub("(%-+%s*wanxiang_algebra:/pro/)直接辅助(%s*#?.*)", "%1" .. target_aux .. "%2")
+                content, n2 = content:gsub("(%-+%s*wanxiang_algebra:/pro/)间接辅助(%s*#?.*)", "%1" .. target_aux .. "%2")
+                local n = n1 + n2
+
+                if n > 0 then
+                    local w = io.open(p, "w")
+                    if w then w:write(content); w:close() end
+                    total_hits = total_hits + n
+                    touched = touched + 1
+                end
+            end
+        end
+
+        local msg = (total_hits > 0)
+            and ("已切换到〔" .. target_aux .. "〕，请重新部署")
+            or  "未找到可切换的条目"
+        yield(Candidate("switch", seg.start, seg._end, msg, ""))
+        return
+    end
     local schema_map = {
         ["/flypy"] = "小鹤双拼",
         ["/mspy"] = "微软双拼",
