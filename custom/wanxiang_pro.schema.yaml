@@ -321,6 +321,7 @@ emoji:
   option_name: emoji
   opencc_config: emoji.json
   tags: [abc]
+  inherit_comment: false
 
 #中文转英文
 chinese_english:
