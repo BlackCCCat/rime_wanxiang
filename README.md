@@ -121,10 +121,6 @@ schema,default,weasel,squirrel
 
 ### 答疑
 
-#### 为什么词库这么大，我见过只有单字携带辅助码的方案，词库可以缩小吗？
-
-在这里我借助wiki深入阐述一下这个问题并解答这些问题：[万象词库PRO的设计理念](https://github.com/amzxyz/RIME-LMDG/wiki/%E4%B8%87%E8%B1%A1%E8%AF%8D%E5%BA%93PRO%E7%9A%84%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5)
-
 [为什么PRO版本默认关闭调频的说明](https://github.com/amzxyz/RIME-LMDG/wiki/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%85%B3%E9%97%AD%E8%B0%83%E9%A2%91%E4%BB%A5%E5%8F%8A%E4%B8%8E%E4%B9%8B%E5%85%B3%E8%81%94%E7%9A%84%E6%8E%AA%E6%96%BD%E6%9C%89%E5%93%AA%E4%BA%9B)   ```enable_user_dict: false # 是否开启自动调频，true为开启```
 
 ### 功能一览
