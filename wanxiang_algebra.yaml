@@ -67,6 +67,7 @@ base:
       - derive/([wrtypsdfghklzcbnm])ang$/$1nag/
       - derive/([wrtypsdfghklzcbnm])ang$/$1agn/
       # eng
+      - derive/([wrtpsdfghklzcbnm])eng$/$1wng/
       - derive/([wrtpsdfghklzcbnm])eng$/$1neg/
       - derive/([wrtpsdfghklzcbnm])eng$/$1egn/
       # ing

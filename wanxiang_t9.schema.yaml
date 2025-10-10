@@ -193,8 +193,7 @@ chinese_english:
   option_name: chinese_english
   opencc_config: chinese_english.json
   tips: char
-  comment_format:
-    - "xform/-/ /"
+  inherit_comment: false
 
 # 简繁切换
 s2t:
