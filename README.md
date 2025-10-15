@@ -321,9 +321,87 @@ B 重复以上操作完成更多设备的添加和同步
 
 **字符集过滤：** 默认开启过滤，写在charset.dict.yaml的就是可以通过的字表，默认为8105+𰻞𰻞，如果你想什么字在小字集模式可以通过可以写在这里，配套开关【小字集、大字集】，快捷键Ctrl+g 
 
-**自定义词库：** 自定义词库首先要利用[LMDG](https://github.com/amzxyz/RIME-LMDG)中的脚本将你自己的词库刷成与万象同类型的声调、或者声调+辅助码的形态，因为主词库要参与转写。对于custom_phrase则需要手动编辑编码为实际输入的编码
+**自定义词库：** 自定义词库首先要利用工具将你自己的词库刷成与万象同类型的声调、或者声调+辅助码的形态，因为主词库要参与转写。对于custom_phrase则需要手动编辑编码为实际输入的编码。
+
+要保证每个字编码与chars完全一致，这是基础，不再赘述。
+
+##### 固定词库：
+#packs法，要保证外部名称`userxx.dict.yaml`与里面`name: userxx`一致，
+```
+patch:
+  translator/packs/+:
+    - userxx
+```
+
+#重命名法，重命名用户根目录`wanxiang.dict.yaml`为`wanxianguser.dict.yaml`，避免更新被覆盖
+
+#所有主方案文件中使用了这个固定词库的位置都要变更
+```
+patch:
+  translator/dictionary: wanxianguser
+  radical_reverse_lookup/dictionary: wanxianguser
+  user_dict_set/dictionary: wanxianguser
+  add_user_dict/dictionary: wanxianguser
+```
+##### 用户词库迁移：
+
+一个前置知识：同步是将用户词按时序合并导入导出的本地操作。
+
+⚠️请不要将这个rime文件夹部署到同步软件下面，这将造成数据库被同步锁定无法正常工作，同步的最高级目录为/sync
+
+确认你的同步目录，默认用户目录下面的/sync，如果自定义在installation.yaml文件中写入
+
+linux\mac\android这样写：
+```
+sync_dir: "/home/amz/sync"
+```
+windows这样写：
+```
+sync_dir: "D:\\home\\amz\\sync"  #双引号
+sync_dir: 'D:\home\amz\sync'     #单引号
+```
+
+你还可以将installation_id字段改成一个可辨识的名称如按系统命名
+
+知道了这些以后你可以创建以下文件夹，他们的名称来自installation_id字段
+```
+xxx/sync/windows
+xxx/sync/linux
+xxx/sync/ios
+```
+
+你完全可以在用户目录看到wanxiang.userdb，他就是你实时工作的数据库PRO版本是zc.userdb，当你点击右键菜单，同步用户数据时
+
+系统将会将用户词库以txt方式释放到`xxx/sync/windows/wanxiang.userdb.txt`
+
+每一个wanxiang.userdb.txt表头都有一个表头
+
+```
+# Rime user dictionary
+#@/db_name	zc
+#@/db_type	userdb
+#@/rime_version	1.13.1
+#@/tick	793
+#@/user_id	ff9b2823-8733-44bb-a497-daf382b74ca5
+```
+关注db_name必须与用户词典文件名一致，且不管多个设备不同设备文件夹下面的文件名称都应该一致，看起来都是wanxiang.userdb.txt
+
+关注user_id=windows(设备文件夹名称)=installation_id字段必须保持一致
+
+如果只有一个设备，你完全可以在同步后删除用户目录的`userdb`，手动编辑`xxx/sync/windows/wanxiang.userdb.txt`
+
+注意这里的编辑必须是经过预处理格式与万象编码完全一致的情形下，万象提供的工具就可以完成声调标注和辅助码标注
+
+编辑好文件，确保放入设备目录，点击同步即可导入数据库
+
+你还可以将你迁移的数据txt内部设备名称都修改成linux，并将文件放入xxx/sync/linux
+
+此时点击同步也能将用户词与windows文件夹下面的合并一起导入数据库，模拟多设备同步，这也是未来真正的多设备同步逻辑
+
 - [用于Linux Mac的词库刷拼音辅助码工具](https://github.com/amzxyz/rime_wanxiang/releases/download/tools/wanxiang-dicts-tools-linux-mac)
 - [用于Windows的词库刷拼音辅助码工具](https://github.com/amzxyz/rime_wanxiang/releases/download/tools/wanxiang-dicts-tools.exe)
+
+
 <img alt="pay" src="./custom/万象输入方案.png">
 
 ## 鸣谢
