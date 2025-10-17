@@ -530,13 +530,34 @@ local function process_adjustment(context)
         context:highlight(curr_state.highlight_index)
     end
 end
-
+-- 辅助：判断是否单个 ASCII 小写字母
+local function _is_single_lowercase_letter(s)
+    return type(s) == "string" and #s == 1 and s:match("^[a-z]$") ~= nil
+end
 function P.func(key_event, env)
     local context = env.engine.context
+    -- 不要在早期就重置 offset（保持原代码行为）
     curr_state.reset()
 
     local selected_cand = context:get_selected_candidate()
     if not context:has_menu() or not selected_cand or not selected_cand.text then
+        return wanxiang.RIME_PROCESS_RESULTS.kNoop
+    end
+
+    -- 先判断当前的 adjust_code（与 extract_adjustment_code 的逻辑一致）
+    local function get_adjust_code()
+        if wanxiang.is_function_mode_active(context) then
+            local code = seq_property.get(context)
+            if code and code ~= "" then return code end
+            return nil
+        end
+        return context.input:sub(1, context.caret_pos)
+    end
+
+    local adjust_code = get_adjust_code()
+
+    -- 如果不是 function-mode 且 adjust_code 是单个小写字母，则按键不应改变 curr_state.offset，因为单字母存在时间复杂度
+    if (not wanxiang.is_function_mode_active(context)) and _is_single_lowercase_letter(adjust_code) then
         return wanxiang.RIME_PROCESS_RESULTS.kNoop
     end
 
