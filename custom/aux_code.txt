@@ -35550,7 +35550,7 @@
 近	;zj,zl;zj;zj;tu;rp;zj
 仅	;ry;ry;ry;jr;wc;ry
 金	;rb;ra;ra,pa;zj;qq;ra
-斤	;il,iT;pl;pa;tj;rt;pa
+斤	;il;pl;pa;tj;rt;pa
 今	;rv;rv;ra,rv;ja;wy;rv
 尽	;id;id;id;cw;ny;id
 劲	;jl;vl;lg;rs;ca;vl
