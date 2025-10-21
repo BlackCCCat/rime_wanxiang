@@ -337,7 +337,7 @@ patch:
 
 #重命名法，重命名用户根目录`wanxiang.dict.yaml`为`wanxianguser.dict.yaml`，避免更新被覆盖
 
-#所有主方案文件中使用了这个固定词库的位置都要变更
+#所有主方案文件中使用了这个固定词库的位置都要变更 
 ```
 patch:
   translator/dictionary: wanxianguser
