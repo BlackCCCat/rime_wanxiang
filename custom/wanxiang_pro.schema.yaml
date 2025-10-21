@@ -230,7 +230,7 @@ paired_symbols:
     ee: "❪❫"      # 小圆括号装饰
     ff: "❬❭"      # 小尖括号装饰
     gg: "⦉⦊"      # 双弯方括号
-    hh: "⦋⦌"      # 双弯方括号
+    fa: "⦋⦌"      # 双弯方括号
     ii: "⦍⦎"      # 双弯方括号
     jj: "⦏⦐"      # 双弯方括号
     kk: "⦑⦒"      # 双弯方括号
@@ -437,28 +437,27 @@ key_binder:
   # Lua 配置: 超级tips上屏按键
   tips_key: "period"   #修改时候去default找
   bindings:             # 也可以再增加方案专有的
-    #- { when: composing, accept: Tab, send: '[' } ## 取消注释后：tab引导辅助码
     - { when: composing, accept: Control+w, send: Control+BackSpace }
-#分号用于次选，微软、搜狗双拼不可启用
+# 分号用于次选，微软、搜狗双拼不可启用
     #- { when: has_menu, accept: semicolon, send: 2 }
-#使用Control+e进入翻译模式
+# 使用Control+e进入翻译模式
     - { when: has_menu, accept: "Control+e", toggle: chinese_english }
-#使用快捷键Control+c拆分显示
+# 使用快捷键Control+c拆分显示
     - { when: has_menu, accept: "Control+c", toggle: chaifen_switch }
-#使用快捷键Control+a开启和关闭辅助码显示
+# 使用快捷键Control+a开启和关闭辅助码显示
     - { when: has_menu, accept: "Control+a", toggle: fuzhu_hint }
-#通过快捷键Control+s使得输入码显示音调
+# 通过快捷键Control+s使得输入码显示音调
     - { when: has_menu, accept: "Control+s", toggle: tone_display }
-#通过快捷键Control+t开启超级tips
+# 通过快捷键Control+t开启超级tips
     - { when: has_menu, accept: "Control+t", toggle: super_tips }
-#通过快捷键Control+g开启字符集过滤
+# 通过快捷键Control+g开启字符集过滤
     - { when: has_menu, accept: "Control+g", toggle: charset_filter }
 # 使用 tab 在不同音节之间跳转
     - { when: has_menu, accept: "Tab", send: "Control+Right" }
     - { when: composing, accept: "Tab", send: "Control+Right" }
-#当tab第一个字补码正确后，可以使用Ctrl+tab进行上屏并依次补码
+# 当tab第一个字补码正确后，可以使用Ctrl+tab进行上屏并依次补码
     - { when: composing, accept: "Control+Tab", send_sequence: '{Home}{Shift+Right}{1}{Shift+Right}' }
-#启用光标回退至特定音节后、补充辅助码的功能。补充完辅助码后，可以再按一次tab回到整句检查
+# 启用光标回退至特定音节后、补充辅助码的功能。补充完辅助码后，可以再按一次tab回到整句检查
     - { when: composing, accept: Control+1, send_sequence: '{Home}{Shift+Right}' }
     - { when: composing, accept: Control+2, send_sequence: '{Home}{Shift+Right}{Shift+Right}' }
     - { when: composing, accept: Control+3, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}' }
@@ -466,19 +465,19 @@ key_binder:
     - { when: composing, accept: Control+5, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
     - { when: composing, accept: Control+6, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
     - { when: composing, accept: Control+7, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
-#当输入编码后发现没有词，则通过双击``进入造词模式而且不需要删除编码，这个功能与``直接引导相呼应相配合
+# 当输入编码后发现没有词，则通过双击``进入造词模式而且不需要删除编码，这个功能与``直接引导相呼应相配合
     - { match: "^.*`$", accept: "`", send_sequence: '{BackSpace}{Home}{`}{`}{End}' }
-#斜杠被占用引导符号，因此输入本身设置为双击
+# 斜杠被占用引导符号，因此输入本身设置为双击
     - { match: "^/$", accept: "/", send_sequence: '{space}' }
-#通过按下/发送/+1节约一个按键，不冲突的时候可以开启
+# 通过按下/发送/+1节约一个按键，不冲突的时候可以开启
     #- { match: "[a-z]{1,4}", accept: "/",  send_sequence: "/1" }
-#① 翻页 , .
+# 翻页 , .
     # - { when: paging, accept: comma, send: Page_Up }
     # - { when: has_menu, accept: period, send: Page_Down }
-#② 翻页 [ ]
+# 翻页 [ ]
     # - { when: paging, accept: bracketleft, send: Page_Up }
     # - { when: has_menu, accept: bracketright, send: Page_Down }
-#③ 翻页 - =
+# 翻页 - =
     - { when: has_menu, accept: minus, send: Page_Up }
     - { when: has_menu, accept: equal, send: Page_Down }
 # Option/Alt + ←/→ 切换光标至下/上一个拼音
@@ -554,4 +553,5 @@ add_user_dict:
   comment_format:
   prefix: "``"
   tips: "〔开始造词〕"
+
 
