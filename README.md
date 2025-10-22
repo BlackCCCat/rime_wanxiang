@@ -35,6 +35,7 @@
 |版本差异|标准版|增强版|
 |--- |  ----  | ---  |
 |方案文件|wanxiang.schema.yaml|wanxiang_pro.schema.yaml|
+|支持类型|全拼、任何双拼|只支持双拼|
 |是否调频|默认开启|默认关闭|
 |用户词记录|无差别自动记录，词库混乱|需手动造词``引导，词库可控|
 |用户词位置|wanxiang.userdb|zc.userdb|
