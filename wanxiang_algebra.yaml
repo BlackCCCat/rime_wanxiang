@@ -2057,7 +2057,7 @@ reverse:
 #混合编码转写段落
 mixed:
   通用派生规则:
-    - derive|^([A-Z]{1,3})$|$1/|
+    - derive|^([A-Z].{1,2})$|$1/|
     # 数字派生，先将整数类派生出英文写法
     - derive/(?<!\d)1([1-9])(?!\d)/'shí'$1/
     - derive/([1-9])0000(?!0)/$1'wàn'/
@@ -2156,7 +2156,7 @@ mixed:
       - xform/('|^)((?:<v>|<i>|<u>|[tsdghklzcn]))uo(?=^|$|')/$1$2<o>/
       - xform/('|^)((?:<v>|<i>|<u>|[qrtysdghjklzxc]))[uv]n(?=^|$|')/$1$2<p>/
       - xform/('|^)((?:<v>|<i>|[qrtysdghjklzxcn]))i?ong(?=^|$|')/$1$2<s>/
-      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbn]))[iu]ang(?=^|$|')/$1$2<d>/
+      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbnl]))[iu]ang(?=^|$|')/$1$2<d>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghkzcbnm]))en(?=^|$|')/$1$2<f>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghklzcbnm]))eng(?=^|$|')/$1$2<g>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))ang(?=^|$|')/$1$2<h>/
@@ -2199,7 +2199,7 @@ mixed:
       - xform/('|^)((?:<i>|<u>|[aoewtpsdghklzcbnm]))ai(?=^|$|')/$1$2<d>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghkzcbnm]))en(?=^|$|')/$1$2<f>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghklzcbnm]))eng(?=^|$|')/$1$2<g>/
-      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbn]))[iu]ang(?=^|$|')/$1$2<l>/
+      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbnl]))[iu]ang(?=^|$|')/$1$2<l>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))ang(?=^|$|')/$1$2<h>/
       - xform/('|^)([qtpdjlxbnm])ian(?=^|$|')/$1$2<m>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))an(?=^|$|')/$1$2<j>/
@@ -2234,7 +2234,7 @@ mixed:
       - xform/('|^)((?:<v>|<i>|<u>|[tsdghklzcn]))uo(?=^|$|')/$1$2<o>/
       - xform/('|^)((?:<v>|<i>|<u>|[qrtysdghjklzxc]))[uv]n(?=^|$|')/$1$2<p>/
       - xform/('|^)((?:<v>|<i>|[qrtysdghjklzxcn]))i?ong(?=^|$|')/$1$2<s>/
-      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbn]))[iu]ang(?=^|$|')/$1$2<d>/
+      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbnl]))[iu]ang(?=^|$|')/$1$2<d>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghkzcbnm]))en(?=^|$|')/$1$2<f>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghklzcbnm]))eng(?=^|$|')/$1$2<g>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))ang(?=^|$|')/$1$2<h>/
@@ -2276,7 +2276,7 @@ mixed:
       - xform/('|^)((?:<v>|<i>|<u>|[tsdghklzcn]))uo(?=^|$|')/$1$2<o>/
       - xform/('|^)((?:<v>|<i>|<u>|[qrtysdghjklzxc]))[uv]n(?=^|$|')/$1$2<p>/
       - xform/('|^)((?:<v>|<i>|[qrtysdghjklzxcn]))i?ong(?=^|$|')/$1$2<s>/
-      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbn]))[iu]ang(?=^|$|')/$1$2<d>/
+      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbnl]))[iu]ang(?=^|$|')/$1$2<d>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghkzcbnm]))en(?=^|$|')/$1$2<f>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghklzcbnm]))eng(?=^|$|')/$1$2<g>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))ang(?=^|$|')/$1$2<h>/
@@ -2310,7 +2310,7 @@ mixed:
       - xform/('|^)([qtpdjlxbnm])ian(?=^|$|')/$1$2<w>/
       - xform/('|^)er(?=^|$|')/$1<r>/
       - xform/('|^)([qdjlxnm])iu(?=^|$|')/$1$2<r>/
-      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbn]))[iu]ang(?=^|$|')/$1$2<t>/
+      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbnl]))[iu]ang(?=^|$|')/$1$2<t>/
       - xform/('|^)([qtypdjlxnm])ing(?=^|$|')/$1$2<y>/
       - xform/('|^)((?:<v>|<i>|<u>|[tsdghklzcn]))uo(?=^|$|')/$1$2<o>/
       - xform/('|^)((?:<v>|<i>|<u>|[qrtysdghjklzxcn]))uan(?=^|$|')/$1$2<p>/
@@ -2349,7 +2349,7 @@ mixed:
       - xform/('|^)((?:<i>|<u>|[aoewtpsdghklzcbnm]))ai(?=^|$|')/$1$2<p>/
       - xform/^ch/<a>/
       - xform/'ch/'<a>/
-      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbn]))[iu]ang(?=^|$|')/$1$2<g>/
+      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbnl]))[iu]ang(?=^|$|')/$1$2<g>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))ang(?=^|$|')/$1$2<s>/
       - xform/('|^)([qtpdjlxbnm])ie(?=^|$|')/$1$2<d>/
       - xform/('|^)([qtpdjlxbnm])ian(?=^|$|')/$1$2<f>/
@@ -2391,7 +2391,7 @@ mixed:
       - xform/('|^)((?:<v>|<i>|<u>|[tsdghklzcn]))uo(?=^|$|')/$1$2<o>/
       - xform/('|^)((?:<v>|<i>|<u>|[qrtysdghjklzxc]))[uv]n(?=^|$|')/$1$2<z>/
       - xform/('|^)((?:<v>|<i>|[qrtysdghjklzxcn]))i?ong(?=^|$|')/$1$2<y>/
-      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbn]))[iu]ang(?=^|$|')/$1$2<h>/
+      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbnl]))[iu]ang(?=^|$|')/$1$2<h>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghkzcbnm]))en(?=^|$|')/$1$2<r>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghklzcbnm]))eng(?=^|$|')/$1$2<t>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))ang(?=^|$|')/$1$2<g>/
@@ -2435,7 +2435,7 @@ mixed:
       - xform/('|^)((?:<i>|<u>|[aoewtpsdghklzcbnm]))ai(?=^|$|')/$1$2<k>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghkzcbnm]))en(?=^|$|')/$1$2<r>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtpsdfghklzcbnm]))eng(?=^|$|')/$1$2<h>/
-      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbn]))[iu]ang(?=^|$|')/$1$2<n>/
+      - xform/('|^)((?:<v>|<i>|<u>|[aoeqghjkxbnl]))[iu]ang(?=^|$|')/$1$2<n>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))ang(?=^|$|')/$1$2<g>/
       - xform/('|^)([qtpdjlxbnm])ian(?=^|$|')/$1$2<d>/
       - xform/('|^)((?:<v>|<i>|<u>|[wrtypsdfghklzcbnm]))an(?=^|$|')/$1$2<f>/
