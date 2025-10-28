@@ -13,6 +13,7 @@ schema:
     - wanxiang_mixedcode    #中英文混合词汇
     - wanxiang_reverse      # 部件拆字，反查及辅码
     - wanxiang_charset      # 字符集过滤
+    - wanxiang_people       # 人名模式
 # 开关
 # reset: 默认状态。注释掉后，切换窗口时不会重置到默认状态。
 # states: 方案选单显示的名称。可以注释掉，仍可以通过快捷键切换。
@@ -85,6 +86,7 @@ engine:
     - table_translator@custom_phrase       #自定义短语 custom_phrase.txt，用于置顶自定义编码候选词
     - table_translator@chengyu             #简码成语词汇表导入
     - table_translator@wanxiang_mixedcode  #中英等混合词汇表导入
+    - table_translator@wanxiang_people     #人名词汇表导入
     - table_translator@wanxiang_reverse    #挂接部件组字和笔画反查
     - script_translator@add_user_dict      #按需自造词
     - script_translator@user_dict_set      #使用自造词
@@ -342,6 +344,16 @@ wanxiang_mixedcode:
   enable_completion: true
   enable_sentence: false
   initial_quality: 2
+  comment_format:
+    - xform/^.+$//
+
+# 人名词汇
+wanxiang_people:
+  dictionary: wanxiang_people
+  db_class: stabledb
+  enable_completion: false
+  enable_sentence: false
+  initial_quality: 1
   comment_format:
     - xform/^.+$//
 
