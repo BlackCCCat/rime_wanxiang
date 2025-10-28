@@ -95,7 +95,7 @@ function tips.init(config)
 
     local dist = rime_api.get_distribution_code_name() or ""
     local user_lua_dir = rime_api.get_user_data_dir() .. "/lua"
-    if dist ~= "hamster" and dist ~= "Weasel" then
+    if dist ~= "hamster" and dist ~= "hamster3" and dist ~= "Weasel" then
         tips.ensure_dir_exist(user_lua_dir)
         tips.ensure_dir_exist(user_lua_dir .. "/tips")
     end

@@ -34,6 +34,7 @@ function wanxiang.is_mobile_device()
         -- 主判断：常见移动端输入法
         if lower_dist == "trime" or
             lower_dist == "hamster" or
+            lower_dist == "hamster3" or
             lower_dist == "squirrel" then
             return true
         end
