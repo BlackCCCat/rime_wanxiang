@@ -9,6 +9,7 @@ declare -A display_names=(
   [hanxin]="汉心"
   [wubi]="五笔前2"
   [tiger]="虎码首末"
+  [shouyou]="首右"
 )
 
 # 仓库和下载地址定义

@@ -15,6 +15,10 @@ app_options:
   Code.exe:
       ascii_mode: false
       ascii_punct: true
+  Bandizip.exe:
+    ascii_mode: true     # 英文模式
+  7zFM.exe:
+    ascii_mode: true     # 英文模式
   firefox.exe:
     inline_preedit: true # 行内显示预编辑区：规避 <https://github.com/rime/weasel/issues/946>
   # cmd.exe:               
