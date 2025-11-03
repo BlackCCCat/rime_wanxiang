@@ -1,0 +1,11 @@
+# Rime dictionary
+# encoding: utf-8
+# https://github.com/amzxyz/RIME-LMDG
+# 注释滤镜，辅助码拆分、行政上级匹配、车牌对应关系、翻译等等适合显示到注释里面的数据
+# zrm moqi flypy hanxin jdh  tiger wubi
+---
+name: wanxiang_chaifen
+version: 1.0
+sort: original
+...
+啊	口折kz
