@@ -179,6 +179,7 @@ if __name__ == '__main__':
         "place.dict.yaml",
         "poetry.dict.yaml",
         "suggestion.dict.yaml",
+        "biology.dict.yaml",
     ]
 
     # 输出文件在第一个点前插这个后缀（如 ".pro"；设为空串则不加）
