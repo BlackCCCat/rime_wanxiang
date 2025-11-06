@@ -6,6 +6,13 @@ patch:
       - wanxiang_algebra:/pro/直接辅助            #辅助码升级为：直接辅助和间接辅助两种类型，都是句中任意，不同点在于直接辅助是nire=你  而间接则需要/引导  ni/re=你 ，在这个基础上直接辅助支持拼音后任意位置数字声调参与，间接辅助声调在/引导前参与
       #- 自然码提权                               #本文件末尾，有自然码和小鹤的可以用
 ##########################以上格式受指令初始化控制，最好保持格式不变，如果发生变更请不要使用指令修改相关数据#####################################
+  #启用根据候选第几个字数，定位光标回退至特定音节后，并预提交前半部分，此时后半部分可能也变正确了你就上屏，
+  #如不正确对于base版本你可以继续拆解，假设6个字，之前按下ctrl+3,后面还是不能一次对，继续ctrl+1先上一个对的，那么剩余的两个字可能就对了，使用此法不用辅助码也能游刃有余
+  #如不正确对于pro版本可以继续按下tab(剩余音节之间跳转)补充辅助码的功能。补充完辅助码后，可以再按一次tab回到整句检查，正确就按下空格完成上屏
+  #以上功能只是一种补充手段，在大厂输入法中也常见，但是好多友友不会配置，更好的方式是在2-4字之间养成精准分词的习惯基本上不会用到这部分功能。
+  #我们说长句是评价首选正确性、分词正确性的重要评估手段，但不是目的，我们往往能在输入句子中发现某个片段缺词、权重不对，进而得以继续改进。
+  key_binder/bindings/+:
+    __patch: 跳转编码并预提交   #也可以修改为：跳转编码不提交 ，内容在本文件末尾
   #通过下面的设置可以让你自己的文件引入而与仓库custom_phrase.txt不同，防止更新时被仓库文件覆盖
   #custom_phrase/user_dict: custom_phrasexx    # 这里改成什么就需要手动创建同名的 custom_phrasexx.txt 文件在用户目录，这个文件主要用于置顶，编码为自定义编码的词汇
   #translator/packs/+:
@@ -182,6 +189,31 @@ patch:
   #开启自动无词频造词（默认已经开了）
   #add_user_dict/enable_auto_phrase: true
 
+跳转编码并预提交:
+  __append:
+    - { when: has_menu, accept: Control+1, send_sequence: '{Home}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+2, send_sequence: '{Home}{Shift+Right}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+3, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+4, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+5, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+6, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+7, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+8, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+9, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{space}' }
+    - { when: has_menu, accept: Control+0, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{space}' }
+
+跳转编码不提交:
+  __append:
+    - { when: composing, accept: Control+1, send_sequence: '{Home}{Shift+Right}' }
+    - { when: composing, accept: Control+2, send_sequence: '{Home}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+3, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+4, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+5, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+6, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+7, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+8, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+9, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
+    - { when: composing, accept: Control+0, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
 #下面的数据有需要的可以patch引用
 #特殊优化：部分音节字极少，几乎不参与构词，则提升对应四码字的优先级，仅对小鹤双拼有效，其他双拼方案需作对应修改）
 小鹤双拼提权:
