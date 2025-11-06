@@ -440,6 +440,24 @@ key_binder:
   # Lua 配置: 超级tips上屏按键
   tips_key: "period"   #修改时候去default找
   bindings:             # 也可以再增加方案专有的
+# 通过按下/发送/+1节约一个按键，不冲突的时候可以开启
+    #- { match: "[a-z]{1,4}", accept: "/",  send_sequence: "/1" }
+# 翻页 , .
+    # - { when: paging, accept: comma, send: Page_Up }
+    # - { when: has_menu, accept: period, send: Page_Down }
+# 翻页 [ ]
+    # - { when: paging, accept: bracketleft, send: Page_Up }
+    # - { when: has_menu, accept: bracketright, send: Page_Down }
+# 翻页 - =
+    - { when: has_menu, accept: minus, send: Page_Up }
+    - { when: has_menu, accept: equal, send: Page_Down }
+# Option/Alt + ←/→ 切换光标至下/上一个拼音
+    - { when: always, toggle: ascii_punct, accept: Control+Shift+3 }              # 切换中英标点
+    - { when: always, toggle: ascii_punct, accept: Control+Shift+numbersign }     # 切换中英标点
+    - { when: always, toggle: s2t, accept: Control+Shift+4 }       # 切换简繁
+    - { when: always, toggle: s2t, accept: Control+Shift+dollar }  # 切换简繁
+    - { when: composing, accept: Alt+Left, send: Shift+Left }
+    - { when: composing, accept: Alt+Right, send: Shift+Right }
     - { when: composing, accept: Control+w, send: Control+BackSpace }
 # 分号用于次选，微软、搜狗双拼不可启用
     #- { when: has_menu, accept: semicolon, send: 2 }
@@ -464,24 +482,6 @@ key_binder:
     - { match: "^.*`$", accept: "`", send_sequence: '{BackSpace}{Home}{`}{`}{End}' }
 # 斜杠被占用引导符号，因此输入本身设置为双击
     - { match: "^/$", accept: "/", send_sequence: '{space}' }
-# 通过按下/发送/+1节约一个按键，不冲突的时候可以开启
-    #- { match: "[a-z]{1,4}", accept: "/",  send_sequence: "/1" }
-# 翻页 , .
-    # - { when: paging, accept: comma, send: Page_Up }
-    # - { when: has_menu, accept: period, send: Page_Down }
-# 翻页 [ ]
-    # - { when: paging, accept: bracketleft, send: Page_Up }
-    # - { when: has_menu, accept: bracketright, send: Page_Down }
-# 翻页 - =
-    - { when: has_menu, accept: minus, send: Page_Up }
-    - { when: has_menu, accept: equal, send: Page_Down }
-# Option/Alt + ←/→ 切换光标至下/上一个拼音
-    - { when: composing, accept: Alt+Left, send: Shift+Left }
-    - { when: composing, accept: Alt+Right, send: Shift+Right }
-    - { when: always, toggle: ascii_punct, accept: Control+Shift+3 }              # 切换中英标点
-    - { when: always, toggle: ascii_punct, accept: Control+Shift+numbersign }     # 切换中英标点
-    - { when: always, toggle: s2t, accept: Control+Shift+4 }       # 切换简繁
-    - { when: always, toggle: s2t, accept: Control+Shift+dollar }  # 切换简繁
 
 editor:
   bindings:
