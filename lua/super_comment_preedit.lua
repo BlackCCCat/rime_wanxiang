@@ -393,7 +393,7 @@ function ZH.func(input, env)
     -- auto_phrase 相关声明
     local enable_auto_phrase = config:get_bool("add_user_dict/enable_auto_phrase") or false
     local enable_user_dict = config:get_bool("add_user_dict/enable_user_dict") or false
-
+    local saved = false
     for cand in input:iter() do
         local genuine_cand = cand:get_genuine()
         local preedit = genuine_cand.preedit or ""
@@ -434,6 +434,17 @@ function ZH.func(input, env)
             end
             if #current_segment > 0 then
                 table.insert(input_parts, current_segment)
+            end
+
+            if not saved then  --将这个原始preedit存入上下文，在按键处理阶段可调用
+                local ctx = env.engine.context
+                local pre = (preedit ~= "" and preedit)
+                            or (ctx.composition and ctx.composition.to_string and ctx.composition:to_string())
+                            or (ctx.input or "")
+                ctx:set_property("sequence_preedit_key", ctx.input or "")
+                ctx:set_property("sequence_preedit_val", pre)
+                log.info(string.format("[sequence] key=%q val=%q", tostring(ctx.input or ""), tostring(pre)))
+                saved = true
             end
 
             -- 拆分拼音段（comment）
