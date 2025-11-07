@@ -51,6 +51,7 @@ engine:
   processors:
     - lua_processor@*select_character           #以词定字，默认左中括号上屏一个词的前一个字，右中括号上屏一个词的后一个字
     - lua_processor@*partial_commit             #通过ctrl+1~0局部提交10个字以内的句子的前几个字（一般为正确的前几个）使用时要遵循合理的分词结构能促进后续编码打出正确的词汇
+    - lua_processor@*letter_selector            #在N模式R模式下输入数字被视为编码，那么如何上屏呢，现在除了方向键还提供qwertyuio对照1-9来选词
     - lua_processor@*quick_symbol_text          #快符引导以及重复上屏，配合quick_symbol_text顶层配置清单定义扩展按键
     - lua_processor@*super_tips                 #超级提示模块：表情、简码、翻译、化学式、等等靠你想象
     - lua_processor@*tone_fallback              #声调辅助回退，当你输入声调数字错误时，继续输入正确的而不用回退删除
