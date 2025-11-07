@@ -3,9 +3,50 @@
 local wanxiang = require("wanxiang")
 
 local M = {}
+
+-- 数字键映射（主键盘 + 小键盘）
 local DIGIT = { [0x31]=1,[0x32]=2,[0x33]=3,[0x34]=4,[0x35]=5,[0x36]=6,[0x37]=7,[0x38]=8,[0x39]=9,[0x30]=10 }
 local KP    = { [0xFFB1]=1,[0xFFB2]=2,[0xFFB3]=3,[0xFFB4]=4,[0xFFB5]=5,[0xFFB6]=6,[0xFFB7]=7,[0xFFB8]=8,[0xFFB9]=9,[0xFFB0]=10 }
 
+-- 工具：字符串缩略 / 获取分隔符 / 安全转义 / 清洗 raw
+local function short(s)
+    if not s then return "" end
+    if #s > 120 then
+        return s:sub(1, 117) .. "..."
+    end
+    return s
+end
+
+local function get_delimiters(ctx)
+    local cfg = ctx.engine and ctx.engine.schema and ctx.engine.schema.config
+    local delimiter = (cfg and cfg:get_string("speller/delimiter")) or " '"
+    return delimiter:sub(1, 1), delimiter:sub(2, 2)  -- auto, manual
+end
+
+-- 放进字符类 [...] 使用的转义（只转义 % ^ ] -）
+local function esc_class(c)
+    if not c or c == "" then return "" end
+    return (c:gsub("([%%%^%]%-])", "%%%1"))
+end
+
+-- 普通模式串位置的单字符转义（最小化：仅非字母数字下划线时转义）
+local function esc_pat(c)
+    if not c or c == "" then return "" end
+    if c:match("[%w_]") then return c end
+    return (c:gsub("(%W)", "%%%1"))
+end
+
+-- 清洗整串 raw：去掉手动分隔符（如 "'"）
+local function clean_raw(ctx, raw)
+    if not raw or raw == "" then return "" end
+    local _, manual = get_delimiters(ctx)
+    if manual and #manual == 1 then
+        raw = raw:gsub(esc_pat(manual), "")
+    end
+    return raw
+end
+
+-- 取候选前 n 个字符
 local function utf8_head(s, n)
     local i, c = 1, 0
     while i <= #s and c < n do
@@ -15,49 +56,42 @@ local function utf8_head(s, n)
     end
     return s:sub(1, i - 1)
 end
-
--- tone_display 开：用上下文保存的 preedit；否则用 script_text
+-- 生成 target：按分隔符切 preedit/script_text，取前 n 个并去分隔符拼接
 local function script_prefix(ctx, n)
-    local is_tone_display = ctx:get_option("tone_display")
-    local is_full_pinyin = ctx:get_option("full_pinyin")
-    local s = ""
+    local raw_in    = ctx.input or ""
+    local prop_key  = ctx:get_property("sequence_preedit_key") or ""
+    local prop_val  = ctx:get_property("sequence_preedit_val") or ""
+    local script_txt = ctx:get_script_text() or ""
 
-    if is_tone_display or is_full_pinyin then
-        if (ctx:get_property("sequence_preedit_key") or "") == (ctx.input or "") then
-            s = ctx:get_property("sequence_preedit_val") or ""
-        else
-            return ""
-        end
+    local s
+    if prop_key == raw_in and prop_val ~= "" then
+        s = prop_val
     else
-        s = ctx:get_script_text() or ""
+        s = script_txt
     end
     if s == "" then return "" end
 
-    -- 按分隔符切音节 → 取前 n 个 → 无分隔符拼接
-    local cfg = ctx.engine and ctx.engine.schema and ctx.engine.schema.config
-    local delimiter = (cfg and cfg:get_string("speller/delimiter")) or " '"
-    local auto   = delimiter:sub(1, 1)
-    local manual = delimiter:sub(2, 2)
-    local function esc(c) return (c:gsub("(%W)", "%%%1")) end
-    local pat = "[^" .. esc(auto) .. esc(manual) .. "%s]+"
+    local auto, manual = get_delimiters(ctx)
+    local pat = "[^" .. esc_class(auto) .. esc_class(manual) .. "%s]+"
 
     local parts = {}
     for w in s:gmatch(pat) do parts[#parts + 1] = w end
     if #parts == 0 then return "" end
 
     local upto = math.min(n, #parts)
-    return table.concat({ table.unpack(parts, 1, upto) }, "")
+    local target = table.concat({ table.unpack(parts, 1, upto) }, "")
+    return target
 end
-
--- 简化版：不再跳过任何分隔符，严格逐字符对齐 raw 与 target
+-- 对齐“去分隔符后的 raw_clean”与 target；返回消耗长度（基于 raw_clean）
 local function eat_len_by_target(ctx, target)
     if target == "" then return 0 end
     local raw = ctx.input or ""
     if raw == "" then return 0 end
 
-    local i, j, Lr, Lt = 1, 1, #raw, #target
-    while i <= Lr and j <= Lt do
-        if raw:sub(i, i) ~= target:sub(j, j) then
+    local clean = clean_raw(ctx, raw)
+    local i, j, Lc, Lt = 1, 1, #clean, #target
+    while i <= Lc and j <= Lt do
+        if clean:sub(i, i) ~= target:sub(j, j) then
             return 0
         end
         i, j = i + 1, j + 1
@@ -65,28 +99,22 @@ local function eat_len_by_target(ctx, target)
     if j <= Lt then return 0 end
     return i - 1
 end
-
--- 简单的“待回写”状态
+-- 回写余码到组合区（使用 update_notifier 确保 caret 正确）
 local function set_pending(env, rest) env._cpc_pending_rest = rest or "" end
 local function has_pending(env) return type(env._cpc_pending_rest) == "string" and env._cpc_pending_rest ~= nil end
 local function take_pending(env) local r = env._cpc_pending_rest; env._cpc_pending_rest = nil; return r end
 
 function M.init(env)
-    -- 在组合更新里回写余码，并确保“先刷新→再设 caret→再刷新”
     env._cpc_update_conn = env.engine.context.update_notifier:connect(function(ctx)
         if not has_pending(env) then return end
         local rest = take_pending(env) or ""
 
-        -- 先改 input
         ctx.input = rest
-
-        -- 清理/刷新一次（部分前端会在此重置 caret）
         if ctx.clear_non_confirmed_composition then
             ctx:clear_non_confirmed_composition()
         end
-        -- 把光标放到余码末尾
         if ctx.caret_pos ~= nil then
-            ctx.caret_pos = #rest   -- raw 为 ASCII，字节数即长度
+            ctx.caret_pos = #rest
         end
     end)
 end
@@ -98,8 +126,8 @@ function M.fini(env)
     end
 end
 
+-- 主逻辑：Ctrl+数字触发
 function M.func(key, env)
-    -- 只在按下时处理（release 忽略），避免依赖抬起；Ctrl 必须按下
     if not key:ctrl() or key:release() then
         return wanxiang.RIME_PROCESS_RESULTS.kNoop
     end
@@ -111,24 +139,26 @@ function M.func(key, env)
     if not ctx:is_composing() then return wanxiang.RIME_PROCESS_RESULTS.kNoop end
 
     local cand = ctx:get_selected_candidate() or ctx:get_candidate(0)
-    if not cand or not cand.text or #cand.text == 0 then return wanxiang.RIME_PROCESS_RESULTS.kNoop end
+    if not cand or not cand.text or #cand.text == 0 then
+        return wanxiang.RIME_PROCESS_RESULTS.kNoop
+    end
 
-    local h = utf8_head(cand.text, n)
-    if h == "" then return wanxiang.RIME_PROCESS_RESULTS.kNoop end
+    local head = utf8_head(cand.text, n)
+    if head == "" then return wanxiang.RIME_PROCESS_RESULTS.kNoop end
 
-    -- 预先计算余码（严格按前 N 音节对齐 raw）
     local target = script_prefix(ctx, n)
-    local eat = eat_len_by_target(ctx, target)
-    local raw = ctx.input or ""
-    local rest = (eat > 0) and raw:sub(eat + 1) or raw
+    if target == "" then return wanxiang.RIME_PROCESS_RESULTS.kNoop end
 
-    -- 1) 先上屏前 n 字
-    env.engine:commit_text(h)
+    local consumed = eat_len_by_target(ctx, target)
+    if consumed == 0 then
+        return wanxiang.RIME_PROCESS_RESULTS.kNoop
+    end
 
-    -- 2) 把余码交给 update_notifier 回写与定位 caret
+    local raw_clean = clean_raw(ctx, ctx.input or "")
+    local rest = raw_clean:sub(consumed + 1)
+
+    env.engine:commit_text(head)
     set_pending(env, rest)
-
-    -- 3) 立即刷新，确保不依赖按键抬起
     ctx:refresh_non_confirmed_composition()
 
     return wanxiang.RIME_PROCESS_RESULTS.kAccepted

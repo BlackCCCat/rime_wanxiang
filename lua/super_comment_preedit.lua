@@ -393,19 +393,54 @@ function ZH.func(input, env)
     -- auto_phrase 相关声明
     local enable_auto_phrase = config:get_bool("add_user_dict/enable_auto_phrase") or false
     local enable_user_dict = config:get_bool("add_user_dict/enable_user_dict") or false
-    local saved = false
+
     for cand in input:iter() do
         local genuine_cand = cand:get_genuine()
         local preedit = genuine_cand.preedit or ""
         local initial_comment = genuine_cand.comment
         local final_comment = initial_comment
         index = index + 1
-
         -- auto_phrase 相关处理,只保存comment
         if enable_auto_phrase and enable_user_dict then 
             AP.save_comment_cache(cand)
         end
+        do
+            local ctx = env.engine.context
+            local raw_in = ctx.input or ""
+            if env._saved_input_for_seq ~= raw_in then
+                ctx:set_property("sequence_preedit_key", raw_in)
+                ctx:set_property("sequence_preedit_val", preedit)
+                env._saved_input_for_seq = raw_in
+                log.info(string.format("[sequence] save preedit: key=%q val=%q", raw_in, preedit))
+            end
+        end
+        -- 这里开始：始终进行常规状态下的“数字→声调符号”的 preedit 转换,数据在方案中定义；
+        -- 为啥不用系统带的转换，因为那个转换后会让Lua获取的原始数据发生变化不利于一些策略
+        -- 1) tone_map 仅初始化一次（schema: tone_preedit/0..9）
+        if not env.tone_map then
+            env.tone_map = {}
+            local cfg = env.engine.schema.config
+            for d = 0, 9 do
+                local k = tostring(d)
+                local v = cfg:get_string("tone_preedit/" .. k)
+                if v and v ~= "" then
+                    env.tone_map[k] = v
+                end
+            end
+        end
 
+        -- 2) 直接在整串 preedit 上做 gsub：把 “字母+尾部数字” 的数字逐位映射
+        if preedit ~= "" then
+            local converted = preedit:gsub("(.*)(%d+)", function(body, digits)
+                local mapped = digits:gsub("%d", function(d)
+                    return env.tone_map[d] or d
+                end)
+                return body .. mapped
+            end)
+            if converted ~= preedit then
+                genuine_cand.preedit = converted
+            end
+        end
         -- preedit相关处理只跳过 preedit，不影响注释
         if is_radical_mode then
             goto after_preedit
@@ -434,17 +469,6 @@ function ZH.func(input, env)
             end
             if #current_segment > 0 then
                 table.insert(input_parts, current_segment)
-            end
-
-            if not saved then  --将这个原始preedit存入上下文，在按键处理阶段可调用
-                local ctx = env.engine.context
-                local pre = (preedit ~= "" and preedit)
-                            or (ctx.composition and ctx.composition.to_string and ctx.composition:to_string())
-                            or (ctx.input or "")
-                ctx:set_property("sequence_preedit_key", ctx.input or "")
-                ctx:set_property("sequence_preedit_val", pre)
-                log.info(string.format("[sequence] key=%q val=%q", tostring(ctx.input or ""), tostring(pre)))
-                saved = true
             end
 
             -- 拆分拼音段（comment）
