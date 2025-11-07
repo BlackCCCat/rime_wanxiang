@@ -280,7 +280,7 @@ end
 function seq_data._ensure_export_file()
     local ok = _sync_ready()
     if not ok then
-        log.info("[sequence] installation_id 或 sync_dir 缺失，跳过导出")
+        --log.info("[sequence] installation_id 或 sync_dir 缺失，跳过导出")
         return false
     end
     local _, _, export_name, export_path, manifest = seq_data._current_paths()
@@ -464,7 +464,7 @@ local function rewrite_export_from_latest(latest)
     end
 
     f:close()
-    log.info(string.format("[sequence] export rewritten (merged LWW, incl tombstones): %s", export_path))
+    --log.info(string.format("[sequence] export rewritten (merged LWW, incl tombstones): %s", export_path))
 end
 
 ------------------------------------------------------------
@@ -490,7 +490,7 @@ local function apply_latest_to_db(latest)
         end
         updated_keys = updated_keys + 1
     end
-    log.info(string.format("[sequence] DB applied from merged LWW: %d keys", updated_keys))
+    --log.info(string.format("[sequence] DB applied from merged LWW: %d keys", updated_keys))
 end
 
 ------------------------------------------------------------
@@ -674,7 +674,7 @@ function F.func(input, env)
     local context = env.engine.context
     local adjustment_allowed = not (wanxiang.is_function_mode_active(context) and seq_property.get(context) == nil)
     if not adjustment_allowed then
-        log.warning("[sequence] 当前指令不支持手动排序")
+        --log.warning("[sequence] 当前指令不支持手动排序")
         return original_list()
     end
 

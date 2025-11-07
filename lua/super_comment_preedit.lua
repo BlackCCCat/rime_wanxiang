@@ -314,7 +314,7 @@ function AP.commit_handler(ctx, env)
 
     env.memory:update_userdict(dictEntry, 1, "")
 
-    log.info(string.format("[auto_phrase] 自动造词：[%s]，编码：[%s]", dictEntry.text, dictEntry.custom_code))
+    --log.info(string.format("[auto_phrase] 自动造词：[%s]，编码：[%s]", dictEntry.text, dictEntry.custom_code))
 
     comment_cache = {}
 end
@@ -411,7 +411,6 @@ function ZH.func(input, env)
                 ctx:set_property("sequence_preedit_key", raw_in)
                 ctx:set_property("sequence_preedit_val", preedit)
                 env._saved_input_for_seq = raw_in
-                log.info(string.format("[sequence] save preedit: key=%q val=%q", raw_in, preedit))
             end
         end
         -- 这里开始：始终进行常规状态下的“数字→声调符号”的 preedit 转换,数据在方案中定义；
