@@ -13,7 +13,7 @@ schema:
     - wanxiang_mixedcode    #中英文混合词汇
     - wanxiang_reverse      # 部件拆字，反查及辅码
     - wanxiang_charset      # 字符集过滤
-    - wanxiang_people       # 人名模式
+
 # 开关
 # reset: 默认状态。注释掉后，切换窗口时不会重置到默认状态。
 # states: 方案选单显示的名称。可以注释掉，仍可以通过快捷键切换。
@@ -50,6 +50,8 @@ switches:
 engine:
   processors:
     - lua_processor@*select_character           #以词定字，默认左中括号上屏一个词的前一个字，右中括号上屏一个词的后一个字
+    - lua_processor@*partial_commit             #通过ctrl+1~0局部提交10个字以内的句子的前几个字（一般为正确的前几个）使用时要遵循合理的分词结构能促进后续编码打出正确的词汇
+    - lua_processor@*letter_selector            #在N模式R模式下输入数字被视为编码，那么如何上屏呢，现在除了方向键还提供qwertyuio对照1-9来选词
     - lua_processor@*quick_symbol_text          #快符引导以及重复上屏，配合quick_symbol_text顶层配置清单定义扩展按键
     - lua_processor@*super_tips                 #超级提示模块：表情、简码、翻译、化学式、等等靠你想象
     - lua_processor@*tone_fallback              #声调辅助回退，当你输入声调数字错误时，继续输入正确的而不用回退删除
@@ -86,7 +88,6 @@ engine:
     - table_translator@custom_phrase       #自定义短语 custom_phrase.txt，用于置顶自定义编码候选词
     - table_translator@chengyu             #简码成语词汇表导入
     - table_translator@wanxiang_mixedcode  #中英等混合词汇表导入
-    - table_translator@wanxiang_people     #人名词汇表导入
     - table_translator@wanxiang_reverse    #挂接部件组字和笔画反查
     - script_translator@add_user_dict      #按需自造词
     - script_translator@user_dict_set      #使用自造词
@@ -131,19 +132,66 @@ tips:
 #星期：oxq 或者 /xq
 #今年第几周：oww 或者 /ww
 #节气：ojq 或者 /jq
-#日期+时间：ors 或者 /rs
+#日期+时间：odt 或者 /dt
 #时间戳：ott 或者 /tt
 #大写N日期：N20250315 或者N0312不带年
 #节日：ojr 或者 /jr
 #问候模板：/day 或者 oday
-#生日信息：/sr或者osr
-birthday_reminder:  #日期格式：必须是4位数字，格式为MMDD（月份和日期），例如：1月27日 → 0127 ，#备注格式：在日期后添加逗号，然后添加任意文本作为备注，例如："0501,我的好朋友"，也可以无备注
-  solar_birthdays:  # 公历生日, 姓名: "日期,备注" or 姓名: "日期"
-    小明: "0501,准备礼物"
-    大明: "0405"
-  lunar_birthdays:  # 农历生日, 姓名: "日期,备注" or 姓名: "日期"
-    小明: "0114"
-    小红: "0815,农历中秋"
+# 通用日期时间格式化函数（供 /rq、/sj、/dt、N0101、N20150101 场景复用）
+# 支持转义：
+#   \X       —— 转义单个字符 X，按字面量输出（如 \Y \m \H 等）
+#   [[...]]  —— 区块整体按字面量输出
+#
+# 约定占位符：
+# 【日期】
+#   Y  四位年份           0000-9999  例：2025
+#   y  两位年份           00-99      例：25
+#   m  月（前导零）        01-12      例：02
+#   n  月（不带前导零）     1-12       例：2
+#   d  日（前导零）        01-31      例：09
+#   j  日（不带前导零）     1-31       例：9
+#
+# 【时间】
+#   H  24小时（前导零）   00-23      例：08
+#   G  24小时（不带零）   0-23       例：8
+#   I  12小时（前导零）   01-12      例：08
+#   l  12小时（不带零）   1-12       例：8   （注意是小写 L）
+#   M  分钟（前导零）     00-59      例：05
+#   S  秒（前导零）       00-59      例：09
+#   p  am/pm（小写）     am / pm
+#   P  AM/PM（大写）     AM / PM
+# 【时区】
+#   O  带冒号格式        +08:00、-04:30、+05:45
+#   o  不带冒号格式      +0800、-0430、+0545
+date_formats:
+  - "Y年m月d日"
+  - "Y-m-d"
+  - "Y/m/d"
+  - "Y.m.d"
+  - "Ymd"
+  - "Y年n月j日"
+  - "y年n月j日"
+  - "n月j日"
+time_formats:
+  - "H:M"
+  - "H点M分"
+  - "H:M:S"
+  - "H时M分S秒"
+  - "下午I:M"
+  - "I:M P"
+datetime_formats:
+  - "Y-m-d H:M:S"
+  - "Y-m-dTH:M:S O"
+  - "YmdHMS"
+  - "Y年m月d日 H点M分"
+  - "y/m/d I:M p"
+
+#常规状态下数字转换成相应的字符，由超级preedit接管
+tone_preedit:
+  "7": "¹"
+  "8": "²"
+  "9": "³"
+  "0": "⁴"
 
 # a/、单字母组合，触发预设编码自动上屏快符，支持将值设为"repeat" 以支持对应按键重复上屏功能，custom>schema>lua最终合并键值
 # 现在就支持26字母快符，结合成对符号输入，这边的压力小一些
@@ -310,11 +358,6 @@ translator:
   spelling_hints: 30           #将注释以词典code字符串形式完全暴露，通过super_comment.lua完全接管，灵活配置。
   always_show_comments: true   # Rime 默认在 preedit 等于 comment 时取消显示 comment，这里强制一直显示，供super_comment_preedit.lua做判断用。
   comment_format: {comment}    #将注释以词典字符串形式完全暴露，通过super_preedit.lua完全接管，灵活配置。
-  preedit_format:              #影响到输入框的显示和“Shift+回车”上屏的字符，交给super_comment_preedit处理
-    - xform/7/¹/
-    - xform/8/²/
-    - xform/9/³/
-    - xform/0/⁴/
   #disable_user_dict_for_patterns:  #如果你开启调频，需要一并考虑这个配置是否需要，基本的6码3字不调频，你可以自定义，目前的逻辑是依然记录用户词但满足规则的不输出不被使用
   #  - "^[a-z]{1,6}"
 
@@ -347,15 +390,6 @@ wanxiang_mixedcode:
   comment_format:
     - xform/^.+$//
 
-# 人名词汇
-wanxiang_people:
-  dictionary: wanxiang_people
-  db_class: stabledb
-  enable_completion: false
-  enable_sentence: false
-  initial_quality: 1
-  comment_format:
-    - xform/^.+$//
 
 # Emoji
 emoji:
@@ -451,7 +485,24 @@ key_binder:
   select_first_character: "bracketleft"  # 左中括号 [
   select_last_character: "bracketright"  # 右中括号 ]
   bindings:               # 也可以再增加方案专有的
-#- { when: composing, accept: Tab, send: '[' } ## 取消注释后：tab引导辅助码
+# 通过按下/发送/+1节约一个按键，不冲突的时候可以开启
+    #- { match: "[a-z]{1,4}", accept: "/",  send_sequence: "/1" }
+# 翻页 , .
+    # - { when: paging, accept: comma, send: Page_Up }
+    # - { when: has_menu, accept: period, send: Page_Down }
+# 翻页 [ ]
+    # - { when: paging, accept: bracketleft, send: Page_Up }
+    # - { when: has_menu, accept: bracketright, send: Page_Down }
+# 翻页 - =
+    - { when: has_menu, accept: minus, send: Page_Up }
+    - { when: has_menu, accept: equal, send: Page_Down }
+# Option/Alt + ←/→ 切换光标至下/上一个拼音
+    - { when: always, toggle: ascii_punct, accept: Control+Shift+3 }              # 切换中英标点
+    - { when: always, toggle: ascii_punct, accept: Control+Shift+numbersign }     # 切换中英标点
+    - { when: always, toggle: s2t, accept: Control+Shift+4 }       # 切换简繁
+    - { when: always, toggle: s2t, accept: Control+Shift+dollar }  # 切换简繁
+    - { when: composing, accept: Alt+Left, send: Shift+Left }
+    - { when: composing, accept: Alt+Right, send: Shift+Right }
     - { when: composing, accept: Control+w, send: Control+BackSpace }
 #分号用于次选，微软、搜狗双拼不可启用
     #- { when: has_menu, accept: semicolon, send: 2 }
@@ -472,34 +523,11 @@ key_binder:
     - { when: composing, accept: "Tab", send: "Control+Right" }
 #当tab第一个字补码正确后，可以使用Ctrl+tab进行上屏并依次补码
     - { when: composing, accept: "Control+Tab", send_sequence: '{Home}{Shift+Right}{1}{Shift+Right}' }
-#启用Ctrl+数字，光标回退至特定音节后、补充辅助码的功能。补充完辅助码后，可以再按一次tab回到整句检查
-    - { when: composing, accept: Control+1, send_sequence: '{Home}{Shift+Right}' }
-    - { when: composing, accept: Control+2, send_sequence: '{Home}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+3, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+4, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+5, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
-    - { when: composing, accept: Control+6, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
-    #- { when: composing, accept: Control+7, send_sequence: '{Home}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}{Shift+Right}' }
 #当输入编码后发现没有词，则通过双击``进入造词模式而且不需要删除编码，这个功能与``直接引导相呼应相配合
     - { match: "^.*`$", accept: "`", send_sequence: '{BackSpace}{Home}{`}{`}{End}' }
 #斜杠被占用引导符号，因此输入本身设置为双击
     - { match: "^/$", accept: "/", send_sequence: '{space}' }
-#① 翻页 , .
-    # - { when: paging, accept: comma, send: Page_Up }
-    # - { when: has_menu, accept: period, send: Page_Down }
-#② 翻页 [ ]
-    # - { when: paging, accept: bracketleft, send: Page_Up }
-    # - { when: has_menu, accept: bracketright, send: Page_Down }
-#③ 翻页 - =
-    - { when: has_menu, accept: minus, send: Page_Up }
-    - { when: has_menu, accept: equal, send: Page_Down }
-# Option/Alt + ←/→ 切换光标至下/上一个拼音
-    - { when: composing, accept: Alt+Left, send: Shift+Left }
-    - { when: composing, accept: Alt+Right, send: Shift+Right }
-    - { when: always, toggle: ascii_punct, accept: Control+Shift+3 }              # 切换中英标点
-    - { when: always, toggle: ascii_punct, accept: Control+Shift+numbersign }     # 切换中英标点
-    - { when: always, toggle: s2t, accept: Control+Shift+4 }       # 切换简繁
-    - { when: always, toggle: s2t, accept: Control+Shift+dollar }  # 切换简繁
+
 editor:
   bindings:
     space: confirm                        # 空格键：上屏候选项
@@ -541,11 +569,6 @@ user_dict_set:
   max_homophones: 5
   max_homographs: 5
   comment_format:
-  preedit_format:     #影响到输入框的显示和“Shift+回车”上屏的字符，交给super_preedit_pro处理
-    - xform/7/¹/
-    - xform/8/²/
-    - xform/9/³/
-    - xform/0/⁴/
   enable_user_dict: false
   user_dict: zc
 # 自定义词典加词(``引导)

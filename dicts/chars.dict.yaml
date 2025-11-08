@@ -6833,7 +6833,7 @@ sort: by_weight
 谛	dì	497
 翟	dí	497
 嫡	dí	491
-嘀	dí	481
+嘀	dī	481
 棣	dì	476
 诋	dǐ	475
 砥	dǐ	455
@@ -6877,6 +6877,7 @@ sort: by_weight
 詆	dǐ	162
 厎	dǐ	159
 蔕	dì	151
+嘀	dí	140
 踶	dì	139
 篴	dí	139
 蝃	dì	134
@@ -19935,6 +19936,7 @@ sort: by_weight
 鑞	là	50
 鬎	là	38
 揧	là	38
+癞	là	3
 𬶟	là	1
 㻋	là	1
 䓥	là	1
@@ -22371,9 +22373,9 @@ sort: by_weight
 六	liù	871
 陆	liù	833
 刘	liú	815
-柳	liǔ	801
-流	liú	795
-留	liú	748
+留	liú	801
+柳	liǔ	795
+流	liú	747
 浏	liú	628
 瘤	liú	625
 溜	liū	594
@@ -46246,9 +46248,10 @@ sort: by_weight
 於	yū	1
 蔚	yù	1
 原	yuán	818
-缘	yuán	810
-元	yuán	806
+元	yuán	810
+缘	yuán	804
 员	yuán	800
+袁	yuán	785
 院	yuàn	782
 源	yuán	778
 远	yuǎn	752
@@ -46257,7 +46260,6 @@ sort: by_weight
 圆	yuán	690
 援	yuán	657
 怨	yuàn	628
-袁	yuán	608
 苑	yuàn	585
 渊	yuān	578
 冤	yuān	558

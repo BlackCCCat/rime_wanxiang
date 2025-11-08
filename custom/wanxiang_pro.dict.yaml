@@ -22,5 +22,6 @@ import_tables:
   - dicts/compatible.pro      #兼容词库，是基础词库的扩充，收录了多场景多种读音的词组
   - dicts/poetry.pro          #诗词
   - dicts/place.pro           #地名
+#  - dicts/biology.pro             #生物学词汇，由base、correlation、suggestion分离出来的
 ...
 

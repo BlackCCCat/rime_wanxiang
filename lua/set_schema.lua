@@ -53,10 +53,6 @@ local function replace_schema(file_path, target_schema)
         )
         content = content:gsub("([%s]*__patch:%s*wanxiang_algebra:/mixed/)%S+", "%1" .. target_schema)
 
-    elseif file_path:find("wanxiang_people") then
-
-        content = content:gsub("([%s]*__include:%s*wanxiang_algebra:/mixed/)%S+", "%1" .. target_schema)
-
     elseif file_path:find("wanxiang%.custom") or file_path:find("wanxiang_pro%.custom") then
         -- 先把旧前缀整体替换为新前缀
         -- "- wanxiang.schema:/"            -> "- wanxiang_algebra:/base/"
@@ -151,7 +147,6 @@ local function translator(input, seg, env)
 
         local files = {
             "wanxiang_mixedcode.custom.yaml",
-            "wanxiang_people.custom.yaml",
             "wanxiang_reverse.custom.yaml"
         }
 

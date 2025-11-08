@@ -314,7 +314,7 @@ function AP.commit_handler(ctx, env)
 
     env.memory:update_userdict(dictEntry, 1, "")
 
-    log.info(string.format("[auto_phrase] 自动造词：[%s]，编码：[%s]", dictEntry.text, dictEntry.custom_code))
+    --log.info(string.format("[auto_phrase] 自动造词：[%s]，编码：[%s]", dictEntry.text, dictEntry.custom_code))
 
     comment_cache = {}
 end
@@ -400,12 +400,47 @@ function ZH.func(input, env)
         local initial_comment = genuine_cand.comment
         local final_comment = initial_comment
         index = index + 1
-
         -- auto_phrase 相关处理,只保存comment
         if enable_auto_phrase and enable_user_dict then 
             AP.save_comment_cache(cand)
         end
+        do
+            local ctx = env.engine.context
+            local raw_in = ctx.input or ""
+            if env._saved_input_for_seq ~= raw_in then
+                ctx:set_property("sequence_preedit_key", raw_in)
+                ctx:set_property("sequence_preedit_val", preedit)
+                env._saved_input_for_seq = raw_in
+            end
+        end
+        -- 这里开始：始终进行常规状态下的“数字→声调符号”的 preedit 转换（schema: tone_preedit/0..9）
+        -- 为啥不用系统带的转换：避免转写影响 Lua 拿到的原始 preedit
+        if not env.tone_map then
+            env.tone_map = {}
+            local cfg = env.engine.schema.config
+            for d = 0, 9 do
+                local k = tostring(d)
+                local v = cfg:get_string("tone_preedit/" .. k)
+                if v and v ~= "" then
+                    env.tone_map[k] = v
+                end
+            end
+        end
 
+        if preedit ~= "" then
+            -- 全局：把每个「字母+尾随数字」中的数字逐位映射（不会动分隔符/空格）
+            -- 例： "ni9 zl0 na li" -> "ni³ zl⁴ na li"
+            local converted = preedit:gsub("([%a]+)(%d+)", function(body, digits)
+                local mapped = digits:gsub("%d", function(d)
+                    return env.tone_map[d] or d
+                end)
+                return body .. mapped
+            end)
+
+            if converted ~= preedit then
+                genuine_cand.preedit = converted
+            end
+        end
         -- preedit相关处理只跳过 preedit，不影响注释
         if is_radical_mode then
             goto after_preedit

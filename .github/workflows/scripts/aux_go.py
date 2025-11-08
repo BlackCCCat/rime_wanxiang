@@ -160,7 +160,8 @@ if __name__ == '__main__':
         (3, 4, "pro-zrm-fuzhu-dicts"),
         (4, 5, "pro-tiger-fuzhu-dicts"),
         (5, 6, "pro-wubi-fuzhu-dicts"),
-        (6, None, "pro-hanxin-fuzhu-dicts"),
+        (6, 7, "pro-hanxin-fuzhu-dicts"),
+        (7, None, "pro-shouyou-fuzhu-dicts"),
     ]
 
     # 路径
@@ -178,6 +179,7 @@ if __name__ == '__main__':
         "place.dict.yaml",
         "poetry.dict.yaml",
         "suggestion.dict.yaml",
+        "biology.dict.yaml",
     ]
 
     # 输出文件在第一个点前插这个后缀（如 ".pro"；设为空串则不加）

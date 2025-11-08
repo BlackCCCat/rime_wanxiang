@@ -76,6 +76,7 @@ AV	Av
 be	Be
 BT	Bt
 by	By
+EI	EI
 C#	C#
 CD	Cd
 CN	Cn
@@ -164,6 +165,7 @@ un	Un
 vs	Vs
 ad	Ad
 jo	Jo
+mL	ML
 hp	Hp
 cc	Cc
 ic	Ic
@@ -383,6 +385,8 @@ CSS	CSS
 CTO	CTO
 cue	Cue
 cum	Cum
+SCI	SCI
+SSCI	SSCI
 cup	Cup
 cur	Cur
 cut	Cut
@@ -782,7 +786,7 @@ orb	Orb
 ore	Ore
 org	Org
 ORM	ORM
-orz	Orz
+Orz	Orz
 OSS	OSS
 OTC	OTC
 our	Our
@@ -1061,6 +1065,7 @@ WSL	WSL
 WTF	WTF
 WTO	WTO
 WWI	WWI
+MOQ	MOQ
 www	Www
 X11	X11
 x64	X64
@@ -3621,6 +3626,7 @@ fumy	Fumy
 serf	Serf
 kemp	Kemp
 ilex	Ilex
+YYDS	YYDS
 Edda	Edda
 snub	Snub
 kibe	Kibe
@@ -12019,7 +12025,6 @@ shakes	Shakes
 shan't	Shan't
 Shania	Shania
 shanks	Shanks
-nodejs	nodejs
 cangjie	cangjie
 shaped	Shaped
 shapes	Shapes
@@ -13879,6 +13884,11 @@ beagle	Beagle
 bauble	Bauble
 becket	Becket
 pellet	Pellet
+Shizuku	Shizuku
+InfiniCloud	InfiniCloud
+Localsend	Localsend
+NekoBox	NekoBox
+FlClash	FlClash
 pipkin	Pipkin
 nubbin	Nubbin
 snooze	Snooze
@@ -18119,6 +18129,9 @@ Liberia	Liberia
 liberty	Liberty
 library	Library
 librime	Librime
+librime-lua	Librime-lua
+librime-octagram	Librime-octagram
+librime-predict	Librime-predict
 licence	Licence
 license	License
 licking	Licking
@@ -21608,6 +21621,7 @@ slacker	Slacker
 dowdily	Dowdily
 caitiff	Caitiff
 dastard	Dastard
+Pandoc	Pandoc
 milksop	Milksop
 trouper	Trouper
 dabbler	Dabbler
@@ -23660,6 +23674,7 @@ grabber	Grabber
 avarice	Avarice
 slummer	Slummer
 anaemia	Anaemia
+zygisk	Zygisk
 anaemic	Anaemic
 detract	Detract
 blinker	Blinker
@@ -26559,6 +26574,9 @@ Richland	Richland
 Richmond	Richmond
 ridicule	Ridicule
 rigorous	Rigorous
+Foxmail	Foxmail
+rime-wanxiang	Rime-wanxiang
+rime-moran	Rime-moran
 rime-ice	Rime-ice
 RimWorld	RimWorld
 ringtone	Ringtone
