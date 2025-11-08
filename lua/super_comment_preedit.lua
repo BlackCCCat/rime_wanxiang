@@ -413,9 +413,8 @@ function ZH.func(input, env)
                 env._saved_input_for_seq = raw_in
             end
         end
-        -- 这里开始：始终进行常规状态下的“数字→声调符号”的 preedit 转换,数据在方案中定义；
-        -- 为啥不用系统带的转换，因为那个转换后会让Lua获取的原始数据发生变化不利于一些策略
-        -- 1) tone_map 仅初始化一次（schema: tone_preedit/0..9）
+        -- 这里开始：始终进行常规状态下的“数字→声调符号”的 preedit 转换（schema: tone_preedit/0..9）
+        -- 为啥不用系统带的转换：避免转写影响 Lua 拿到的原始 preedit
         if not env.tone_map then
             env.tone_map = {}
             local cfg = env.engine.schema.config
@@ -428,14 +427,16 @@ function ZH.func(input, env)
             end
         end
 
-        -- 2) 直接在整串 preedit 上做 gsub：把 “字母+尾部数字” 的数字逐位映射
         if preedit ~= "" then
-            local converted = preedit:gsub("(.*)(%d+)", function(body, digits)
+            -- 全局：把每个「字母+尾随数字」中的数字逐位映射（不会动分隔符/空格）
+            -- 例： "ni9 zl0 na li" -> "ni³ zl⁴ na li"
+            local converted = preedit:gsub("([%a]+)(%d+)", function(body, digits)
                 local mapped = digits:gsub("%d", function(d)
                     return env.tone_map[d] or d
                 end)
                 return body .. mapped
             end)
+
             if converted ~= preedit then
                 genuine_cand.preedit = converted
             end
